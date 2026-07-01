@@ -1,0 +1,28 @@
+# Dependencias
+node_modules/
+source/node_modules/
+
+# Builds y reportes
+source/dist/
+source/coverage/
+*.local
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+!source/.env.test
+
+# Vercel
+.vercel
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Tooling local de Claude Code
+.claude
+
+# Sistema
+.DS_Store
+*.log

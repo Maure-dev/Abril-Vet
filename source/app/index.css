@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Modo oscuro por atributo: <html data-theme="dark">.
+   El toggle lo maneja el hook useTheme (modules/main/hooks).
+   ───────────────────────────────────────────────────────────── */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ── Paleta cruda (LIGHT) — armonía violeta + natural de Abril Vet ──
+   Los tokens semánticos de abajo (@theme inline) apuntan a estas variables,
+   así las utilidades (bg-canvas, text-ink, ...) responden al tema en runtime. */
+:root {
+  color-scheme: light;
+
+  /* Bases neutras (Gris Neutral #ECEFF1 como fondo por excelencia) */
+  --canvas: #eceff1;
+  --surface: #ffffff;
+  --surface-muted: #f4f1f8;
+
+  /* Texto */
+  --ink: #241a33; /* texto principal (violeta muy oscuro) → AA sobre canvas/surface */
+  --ink-soft: #665e73; /* texto secundario / captions */
+
+  /* Bordes y divisores */
+  --line: #e2dcea; /* borde lavanda-gris suave */
+
+  /* Marca (Violeta Principal #4A148C) — 4 roles para theming robusto */
+  --brand: #4a148c; /* fondo sólido de acciones/nav; pareja con texto blanco */
+  --brand-hover: #38106b; /* hover del sólido */
+  --brand-fg: #6a1b9a; /* marca como texto/ícono sobre superficies neutras (links, activos) */
+  --brand-tint: #f1e6f7; /* fondo tenue con tinte de marca (chips, item activo) */
+
+  /* Lavanda Calma #AB47BC / Púrpura Medio #E1BEE7 — acentos decorativos */
+  --lavender: #ab47bc;
+  --purple-soft: #e1bee7;
+
+  /* Oro Cálido #FFD54F — highlights, estados importantes */
+  --gold: #ffd54f;
+  --gold-fg: #8a5a00; /* ámbar accesible para texto/ícono sobre fondo claro */
+
+  /* Semánticos (Verde Menta = éxito/confirmar, Azul Confianza = info/acción) */
+  --success: #0e7a6b; /* verde menta */
+  --success-tint: #d7f0ec;
+  --warning: #b45309;
+  --warning-tint: #fdecc8;
+  --error: #c62828;
+  --error-tint: #fbe3e3;
+  --info: #1565c0; /* azul confianza */
+  --info-tint: #dceafb;
+}
+
+/* ── Paleta cruda (DARK) — mismos roles, valores con contraste sobre fondo oscuro ── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #14101b;
+  --surface: #1d1826;
+  --surface-muted: #251f31;
+
+  --ink: #ece6f2;
+  --ink-soft: #a79fb3;
+
+  --line: #332b42;
+
+  --brand: #7b1fa2;
+  --brand-hover: #8e24aa;
+  --brand-fg: #ce93d8;
+  --brand-tint: #2a1e3a;
+
+  --lavender: #c061d4;
+  --purple-soft: #3a2b4d;
+
+  --gold: #ffd54f;
+  --gold-fg: #ffca28;
+
+  --success: #26a69a;
+  --success-tint: #113a36;
+  --warning: #e0952a;
+  --warning-tint: #3a2a12;
+  --error: #ef5350;
+  --error-tint: #3a1a1a;
+  --info: #64b5f6;
+  --info-tint: #12263d;
+}
+
+/* ── Tokens semánticos (inline → las utilidades leen la var cruda y responden al tema) ── */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+
+  --color-line: var(--line);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-tint: var(--brand-tint);
+
+  --color-lavender: var(--lavender);
+  --color-purple-soft: var(--purple-soft);
+
+  --color-gold: var(--gold);
+  --color-gold-fg: var(--gold-fg);
+
+  --color-success: var(--success);
+  --color-success-tint: var(--success-tint);
+  --color-warning: var(--warning);
+  --color-warning-tint: var(--warning-tint);
+  --color-error: var(--error);
+  --color-error-tint: var(--error-tint);
+  --color-info: var(--info);
+  --color-info-tint: var(--info-tint);
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+}
+
+/* ── Tokens estáticos (tipografía, radios, sombras, motion) ── */
+@theme {
+  --font-display: "Plus Jakarta Sans Variable", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+
+  --radius-buttons: 0.625rem;
+  --radius-card: 1rem;
+
+  --shadow-soft: 0 0.0625rem 0.125rem rgba(20, 16, 27, 0.05),
+    0 0.5rem 1.875rem rgba(20, 16, 27, 0.08);
+  --shadow-card: 0 0.0625rem 0.125rem rgba(20, 16, 27, 0.04),
+    0 0.25rem 0.75rem rgba(20, 16, 27, 0.06);
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 360ms;
+
+  --animate-fade-in: fade-in var(--duration-base) var(--ease-standard);
+  --animate-fade-out: fade-out var(--duration-fast) var(--ease-standard);
+  --animate-slide-in-right: slide-in-right var(--duration-base) var(--ease-out);
+  --animate-slide-out-right: slide-out-right var(--duration-fast) var(--ease-standard);
+  --animate-slide-up: slide-up var(--duration-base) var(--ease-out);
+  --animate-slide-down: slide-down var(--duration-fast) var(--ease-standard);
+  --animate-pulse-once: pulse-once var(--duration-slow) var(--ease-standard);
+}
+
+/* Keyframes de las animaciones registradas arriba (se usan vía utilidades animate-*). */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-out-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-down {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(0.75rem); }
+}
+@keyframes pulse-once {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background-color: var(--color-canvas);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--duration-base) var(--ease-standard),
+      color var(--duration-base) var(--ease-standard);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  /* Foco visible para accesibilidad (teclado) */
+  :focus-visible {
+    outline: 0.125rem solid var(--color-brand-fg);
+    outline-offset: 0.125rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}

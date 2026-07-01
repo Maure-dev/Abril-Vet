@@ -1,0 +1,52 @@
+rules_version = "2";
+
+// ─────────────────────────────────────────────────────────────
+// Reglas base de Abril Vet — esqueleto de seguridad por roles.
+// Deny-by-default: nada es accesible salvo lo declarado explícitamente.
+// El rol vive en un custom claim del token (request.auth.token.role),
+// seteado por una Cloud Function / script de administración (no editable por el cliente).
+// Roles: "admin" | "vet" | "receptionist" | "assistant".
+// A medida que se modele cada dominio, agregá el match/collection correspondiente.
+// ─────────────────────────────────────────────────────────────
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers de autenticación y rol ──
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return isSignedIn() ? request.auth.token.role : "";
+    }
+
+    function hasRole(roles) {
+      return isSignedIn() && role() in roles;
+    }
+
+    function isAdmin() {
+      return hasRole(["admin"]);
+    }
+
+    // Personal de la clínica (cualquier rol interno autenticado).
+    function isStaff() {
+      return hasRole(["admin", "vet", "receptionist", "assistant"]);
+    }
+
+    // ── Usuarios / personal ──
+    // Cada usuario lee su propio doc; sólo admin administra el resto.
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isStaff());
+      allow write: if isAdmin();
+    }
+
+    // ── Dominio clínico y comercial (a completar por módulo) ──
+    // Plantilla: el personal lee/escribe; sólo admin borra. Ajustá por colección
+    // cuando definas el modelo de datos de cada módulo (patients, appointments, ...).
+    match /{collection}/{docId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+  }
+}
