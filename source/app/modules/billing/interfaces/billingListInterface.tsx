@@ -5,9 +5,11 @@ import type {
   InvoiceType
 } from "@app/modules/billing/entities/entities";
 import { formatMoney } from "@app/modules/billing/helpers/formatMoney";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Pencil, Receipt } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
 
@@ -41,6 +43,8 @@ export default function BillingListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel } = useEntityLookup("clients");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -95,7 +99,13 @@ export default function BillingListInterface({
                   onClick={() => onOpenDetail(invoice)}
                 >
                   <td className="px-4 py-3 text-ink-soft">{invoice.date || "—"}</td>
-                  <td className="px-4 py-3 font-medium text-ink">{invoice.clientId}</td>
+                  <td className="px-4 py-3 font-medium">
+                    <EntityLinkInterface
+                      kind="clients"
+                      id={invoice.clientId}
+                      label={getLabel(invoice.clientId)}
+                    />
+                  </td>
                   <td className="px-4 py-3 font-medium text-ink">{formatMoney(invoice.total)}</td>
                   <td className="px-4 py-3">
                     <BadgeInterface tone={STATUS_TONE[invoice.status]}>
@@ -105,7 +115,7 @@ export default function BillingListInterface({
                   <td className="px-4 py-3 text-right">
                     <button
                       type="button"
-                      aria-label={`Editar factura de ${invoice.clientId}`}
+                      aria-label={`Editar factura de ${getLabel(invoice.clientId) || "cliente"}`}
                       className="inline-flex items-center gap-1 rounded-buttons px-2 py-1 text-xs text-brand-fg hover:bg-brand-tint"
                       onClick={(e) => {
                         e.stopPropagation();

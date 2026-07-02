@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { ITEM_KIND_LABELS, PAYMENT_METHOD_LABELS } from "@app/modules/sales/constants/constants";
 import type { SaleType } from "@app/modules/sales/entities/entities";
@@ -23,6 +25,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default function SalesDetailInterface({ sale, onEdit, onDelete, onBack }: Props) {
+  const { getLabel } = useEntityLookup("clients");
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3">
@@ -46,7 +49,20 @@ export default function SalesDetailInterface({ sale, onEdit, onDelete, onBack }:
         <h3 className="mb-4 font-display text-base text-brand-fg">Datos de la venta</h3>
         <dl className="grid gap-4 sm:grid-cols-3">
           <Row label="Fecha" value={sale.date} />
-          <Row label="Cliente" value={sale.clientId || "Público"} />
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Cliente</dt>
+            <dd className="text-sm text-ink">
+              {sale.clientId ? (
+                <EntityLinkInterface
+                  kind="clients"
+                  id={sale.clientId}
+                  label={getLabel(sale.clientId)}
+                />
+              ) : (
+                "Consumidor final"
+              )}
+            </dd>
+          </div>
           <Row label="Medio de pago" value={PAYMENT_METHOD_LABELS[sale.paymentMethod]} />
         </dl>
       </CardInterface>

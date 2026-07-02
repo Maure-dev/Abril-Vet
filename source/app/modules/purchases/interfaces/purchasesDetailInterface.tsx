@@ -1,3 +1,4 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
@@ -33,6 +34,8 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default function PurchasesDetailInterface({ purchase, onEdit, onDelete, onBack }: Props) {
+  const { getLabel: getProductLabel } = useEntityLookup("products");
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3">
@@ -85,7 +88,9 @@ export default function PurchasesDetailInterface({ purchase, onEdit, onDelete, o
               <tbody>
                 {purchase.items.map((item, index) => (
                   <tr key={index} className="border-b border-line/60 last:border-0">
-                    <td className="px-3 py-2 font-medium text-ink">{item.productId || "—"}</td>
+                    <td className="px-3 py-2 font-medium text-ink">
+                      {getProductLabel(item.productId) || "—"}
+                    </td>
                     <td className="px-3 py-2 text-ink-soft">{item.quantity}</td>
                     <td className="px-3 py-2 text-ink-soft">{formatMoney(item.unitCost)}</td>
                     <td className="px-3 py-2 text-ink">

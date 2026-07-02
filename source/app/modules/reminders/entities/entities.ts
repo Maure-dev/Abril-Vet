@@ -8,7 +8,7 @@ export type ReminderTypeType =
   | "control"
   | "study"
   | "medication";
-export type ReminderChannelType = "email" | "whatsapp";
+export type ReminderChannelType = "email";
 export type ReminderStatusType = "pending" | "sent" | "cancelled";
 
 // Filtros de la lista ("all" = todos).

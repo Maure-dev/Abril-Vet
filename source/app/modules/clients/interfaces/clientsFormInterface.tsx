@@ -60,12 +60,6 @@ export default function ClientsFormInterface({
         <FieldInterface label="Teléfono" error={errors.phone} required>
           <InputInterface value={form.phone} onChange={(e) => onChange("phone", e.target.value)} />
         </FieldInterface>
-        <FieldInterface label="WhatsApp">
-          <InputInterface
-            value={form.whatsapp}
-            onChange={(e) => onChange("whatsapp", e.target.value)}
-          />
-        </FieldInterface>
         <FieldInterface label="Dirección">
           <InputInterface
             value={form.address}

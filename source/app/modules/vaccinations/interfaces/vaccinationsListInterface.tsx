@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Pencil, Plus, Syringe } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
 import { STATUS_LABELS, STATUS_TONES } from "@app/modules/vaccinations/constants/constants";
@@ -34,6 +36,8 @@ export default function VaccinationsListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -98,7 +102,13 @@ export default function VaccinationsListInterface({
                     className="cursor-pointer border-b border-line/60 last:border-0 hover:bg-surface-muted"
                     onClick={() => onOpenDetail(vaccination)}
                   >
-                    <td className="px-4 py-3 text-ink-soft">{vaccination.patientId || "—"}</td>
+                    <td className="px-4 py-3">
+                      <EntityLinkInterface
+                        kind="patients"
+                        id={vaccination.patientId}
+                        label={getPatientLabel(vaccination.patientId)}
+                      />
+                    </td>
                     <td className="px-4 py-3 font-medium text-ink">{vaccination.vaccineName}</td>
                     <td className="px-4 py-3 text-ink-soft">{vaccination.date || "—"}</td>
                     <td className="px-4 py-3 text-ink-soft">{vaccination.nextDoseDate || "—"}</td>

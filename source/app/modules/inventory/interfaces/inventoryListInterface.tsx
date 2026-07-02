@@ -5,6 +5,7 @@ import type {
   StockMovementType
 } from "@app/modules/inventory/entities/entities";
 import { signedQuantity } from "@app/modules/inventory/helpers/signedQuantity";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
@@ -54,6 +55,8 @@ export default function InventoryListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel } = useEntityLookup("products");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -101,36 +104,39 @@ export default function InventoryListInterface({
               </tr>
             </thead>
             <tbody>
-              {items.map((movement) => (
-                <tr
-                  key={movement.id}
-                  className="cursor-pointer border-b border-line/60 last:border-0 hover:bg-surface-muted"
-                  onClick={() => onOpenDetail(movement)}
-                >
-                  <td className="px-4 py-3 text-ink-soft">{movement.date || "—"}</td>
-                  <td className="px-4 py-3 font-medium text-ink">{movement.productId || "—"}</td>
-                  <td className="px-4 py-3">
-                    <BadgeInterface tone={typeTone(movement.type)}>
-                      {MOVEMENT_TYPE_LABELS[movement.type]}
-                    </BadgeInterface>
-                  </td>
-                  <td className="px-4 py-3 font-medium text-ink">{formatSigned(movement)}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      aria-label={`Editar movimiento de ${movement.productId}`}
-                      className="inline-flex items-center gap-1 rounded-buttons px-2 py-1 text-xs text-brand-fg hover:bg-brand-tint"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenEdit(movement);
-                      }}
-                    >
-                      <Pencil className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
-                      Editar
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {items.map((movement) => {
+                const productLabel = getLabel(movement.productId);
+                return (
+                  <tr
+                    key={movement.id}
+                    className="cursor-pointer border-b border-line/60 last:border-0 hover:bg-surface-muted"
+                    onClick={() => onOpenDetail(movement)}
+                  >
+                    <td className="px-4 py-3 text-ink-soft">{movement.date || "—"}</td>
+                    <td className="px-4 py-3 font-medium text-ink">{productLabel || "—"}</td>
+                    <td className="px-4 py-3">
+                      <BadgeInterface tone={typeTone(movement.type)}>
+                        {MOVEMENT_TYPE_LABELS[movement.type]}
+                      </BadgeInterface>
+                    </td>
+                    <td className="px-4 py-3 font-medium text-ink">{formatSigned(movement)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        aria-label={`Editar movimiento de ${productLabel || "producto"}`}
+                        className="inline-flex items-center gap-1 rounded-buttons px-2 py-1 text-xs text-brand-fg hover:bg-brand-tint"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenEdit(movement);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

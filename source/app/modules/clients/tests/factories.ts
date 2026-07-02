@@ -11,7 +11,6 @@ export function buildClient(overrides: Partial<ClientType> = {}): ClientType {
     docId: "30111222",
     email: "ana.garcia@example.com",
     phone: "1145551234",
-    whatsapp: "1145551234",
     address: "Av. Siempreviva 742",
     city: "Buenos Aires",
     notes: "",

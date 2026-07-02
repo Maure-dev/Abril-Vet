@@ -17,8 +17,7 @@ export const REMINDER_TYPE_LABELS: Record<ReminderTypeType, string> = {
 };
 
 export const REMINDER_CHANNEL_LABELS: Record<ReminderChannelType, string> = {
-  email: "Email",
-  whatsapp: "WhatsApp"
+  email: "Email"
 };
 
 export const REMINDER_STATUS_LABELS: Record<ReminderStatusType, string> = {

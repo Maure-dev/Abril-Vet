@@ -1,9 +1,11 @@
 import type { ClientType } from "@app/modules/clients/entities/entities";
 import { formatClientName } from "@app/modules/clients/helpers/formatClientName";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
-import { ArrowLeft } from "@app/modules/main/interfaces/icons";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
+import { ArrowLeft, PawPrint } from "@app/modules/main/interfaces/icons";
 
 type Props = {
   client: ClientType;
@@ -36,6 +38,8 @@ function formatBalance(balance: number): string {
 
 export default function ClientsDetailInterface({ client, onEdit, onDelete, onBack }: Props) {
   const balanceTone = client.balance < 0 ? "error" : client.balance > 0 ? "success" : "neutral";
+  const { options: patientOptions, loading: patientsLoading } = useEntityLookup("patients");
+  const pets = patientOptions.filter((p) => p.clientId === client.id);
 
   return (
     <div className="flex flex-col gap-5">
@@ -65,11 +69,28 @@ export default function ClientsDetailInterface({ client, onEdit, onDelete, onBac
         <dl className="grid gap-4 sm:grid-cols-3">
           <Row label="Documento (DNI/CUIT)" value={client.docId} />
           <Row label="Teléfono" value={client.phone} />
-          <Row label="WhatsApp" value={client.whatsapp} />
           <Row label="Email" value={client.email} />
           <Row label="Dirección" value={client.address} />
           <Row label="Ciudad" value={client.city} />
         </dl>
+      </CardInterface>
+
+      <CardInterface>
+        <h3 className="mb-4 font-display text-base text-brand-fg">Mascotas</h3>
+        {patientsLoading ? (
+          <p className="text-sm text-ink-soft">Cargando…</p>
+        ) : pets.length === 0 ? (
+          <p className="text-sm text-ink-soft">Este cliente no tiene mascotas registradas.</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {pets.map((pet) => (
+              <li key={pet.id} className="flex items-center gap-2">
+                <PawPrint className="h-4 w-4 text-brand-fg" strokeWidth={1.6} aria-hidden="true" />
+                <EntityLinkInterface kind="patients" id={pet.id} label={pet.label} />
+              </li>
+            ))}
+          </ul>
+        )}
       </CardInterface>
 
       <CardInterface>

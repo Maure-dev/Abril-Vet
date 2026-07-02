@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Pencil, ShoppingCart } from "@app/modules/main/interfaces/icons";
 import { InputInterface } from "@app/modules/main/interfaces/inputInterface";
 import { PAYMENT_METHOD_LABELS } from "@app/modules/sales/constants/constants";
@@ -28,6 +30,7 @@ export default function SalesListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel } = useEntityLookup("clients");
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -70,7 +73,17 @@ export default function SalesListInterface({
                   onClick={() => onOpenDetail(sale)}
                 >
                   <td className="px-4 py-3 font-medium text-ink">{sale.date}</td>
-                  <td className="px-4 py-3 text-ink-soft">{sale.clientId || "Público"}</td>
+                  <td className="px-4 py-3 text-ink-soft">
+                    {sale.clientId ? (
+                      <EntityLinkInterface
+                        kind="clients"
+                        id={sale.clientId}
+                        label={getLabel(sale.clientId)}
+                      />
+                    ) : (
+                      "Consumidor final"
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     <BadgeInterface tone="brand">
                       {sale.items.length} líneas · {countUnits(sale)} u.

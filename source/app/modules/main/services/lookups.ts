@@ -9,7 +9,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 // Formas mínimas de cada documento (sólo los campos que necesitamos para la etiqueta).
 type ClientDoc = { firstName?: string; lastName?: string; docId?: string };
-type PatientDoc = { name?: string; species?: string };
+type PatientDoc = { name?: string; species?: string; clientId?: string };
 type StaffDoc = { firstName?: string; lastName?: string; roles?: string[] };
 type ProductDoc = { name?: string; code?: string };
 
@@ -56,7 +56,7 @@ export async function fetchOptions(kind: LookupKindType): Promise<OptionType[]> 
     return sortByLabel(
       snapshot.docs.map((snap) => {
         const data = snap.data() as PatientDoc;
-        return { id: snap.id, label: data.name ?? "(sin nombre)" };
+        return { id: snap.id, label: data.name ?? "(sin nombre)", clientId: data.clientId };
       })
     );
   }

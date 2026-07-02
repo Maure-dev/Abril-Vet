@@ -1,6 +1,7 @@
 import { MOVEMENT_TYPE_LABELS } from "@app/modules/inventory/constants/constants";
 import type { MovementTypeType, StockMovementType } from "@app/modules/inventory/entities/entities";
 import { signedQuantity } from "@app/modules/inventory/helpers/signedQuantity";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
@@ -37,6 +38,8 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default function InventoryDetailInterface({ movement, onEdit, onDelete, onBack }: Props) {
+  const { getLabel } = useEntityLookup("products");
+  const productLabel = getLabel(movement.productId);
   const signed = signedQuantity(movement);
   const signedLabel = signed > 0 ? `+${signed}` : String(signed);
 
@@ -47,7 +50,7 @@ export default function InventoryDetailInterface({ movement, onEdit, onDelete, o
           <ArrowLeft className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
           Volver
         </ButtonInterface>
-        <h2 className="font-display text-xl text-ink">{movement.productId}</h2>
+        <h2 className="font-display text-xl text-ink">{productLabel || "—"}</h2>
         <BadgeInterface tone={typeTone(movement.type)}>
           {MOVEMENT_TYPE_LABELS[movement.type]}
         </BadgeInterface>
@@ -65,7 +68,7 @@ export default function InventoryDetailInterface({ movement, onEdit, onDelete, o
         <h3 className="mb-4 font-display text-base text-brand-fg">Datos del movimiento</h3>
         <dl className="grid gap-4 sm:grid-cols-3">
           <Row label="Fecha" value={movement.date} />
-          <Row label="Producto" value={movement.productId} />
+          <Row label="Producto" value={productLabel} />
           <Row label="Tipo" value={MOVEMENT_TYPE_LABELS[movement.type]} />
           <Row label="Cantidad (con signo)" value={signedLabel} />
           <Row label="Motivo" value={movement.reason} />

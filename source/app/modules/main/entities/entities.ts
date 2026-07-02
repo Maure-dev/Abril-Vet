@@ -66,10 +66,12 @@ export type UploadedFileType = {
 export type LookupKindType = "clients" | "patients" | "vets" | "products";
 
 // Opción de un selector: id + etiqueta (y una línea secundaria opcional).
+// `clientId` sólo lo llevan los pacientes (dueño), para derivar/vincular el cliente.
 export type OptionType = {
   id: string;
   label: string;
   sublabel?: string;
+  clientId?: string;
 };
 
 // ── Notificación global (toast) ──

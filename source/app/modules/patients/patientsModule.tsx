@@ -1,4 +1,5 @@
 import { useDocumentHead } from "@app/modules/main/hooks/useDocumentHead";
+import { useRouter } from "@app/modules/main/hooks/useRouter";
 import PageHeaderInterface from "@app/modules/main/interfaces/pageHeaderInterface";
 import { filterPatients } from "@app/modules/patients/helpers/filterPatients";
 import { usePatientsActions } from "@app/modules/patients/hooks/usePatientsActions";
@@ -24,6 +25,8 @@ export default function PatientsModule() {
   } = usePatientsActions();
   const state = getPatientsState;
   const visible = filterPatients(state.items, state.query, state.speciesFilter);
+  const { navigate, pathname, searchParams } = useRouter();
+  const openId = searchParams.get("id");
 
   useDocumentHead({
     title: "Pacientes",
@@ -33,6 +36,18 @@ export default function PatientsModule() {
   useEffect(() => {
     handleLoad();
   }, []);
+
+  // Deep-link ?id=: al llegar desde otra ficha, abre el detalle de esa mascota y limpia la URL.
+  useEffect(() => {
+    if (!openId || state.loading) {
+      return;
+    }
+    const item = state.items.find((p) => p.id === openId);
+    if (item) {
+      handleOpenDetail(item);
+      navigate(pathname, { replace: true });
+    }
+  }, [openId, state.loading]);
 
   return (
     <section>

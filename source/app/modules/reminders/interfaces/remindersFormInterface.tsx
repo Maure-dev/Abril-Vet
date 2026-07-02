@@ -1,3 +1,4 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import { useEntityOptions } from "@app/modules/main/hooks/useEntityOptions";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EntitySelectInterface from "@app/modules/main/interfaces/entitySelectInterface";
@@ -8,12 +9,10 @@ import {
   TextareaInterface
 } from "@app/modules/main/interfaces/inputInterface";
 import {
-  REMINDER_CHANNEL_LABELS,
   REMINDER_STATUS_LABELS,
   REMINDER_TYPE_LABELS
 } from "@app/modules/reminders/constants/constants";
 import type {
-  ReminderChannelType,
   ReminderFormErrorsType,
   ReminderFormType,
   ReminderStatusType,
@@ -31,7 +30,6 @@ type Props = {
 };
 
 const TYPE_OPTIONS = Object.keys(REMINDER_TYPE_LABELS) as ReminderTypeType[];
-const CHANNEL_OPTIONS = Object.keys(REMINDER_CHANNEL_LABELS) as ReminderChannelType[];
 const STATUS_OPTIONS = Object.keys(REMINDER_STATUS_LABELS) as ReminderStatusType[];
 
 export default function RemindersFormInterface({
@@ -44,7 +42,15 @@ export default function RemindersFormInterface({
   onCancel
 }: Props) {
   const { options: patientOptions, loading: patientsLoading } = useEntityOptions("patients");
-  const { options: clientOptions, loading: clientsLoading } = useEntityOptions("clients");
+  const { getLabel: getClientLabel } = useEntityLookup("clients");
+  const clientLabel = getClientLabel(form.clientId);
+
+  // El cliente (dueño) se toma de la mascota elegida: no se selecciona ni se edita a mano.
+  const handlePatientChange = (id: string): void => {
+    const option = patientOptions.find((patient) => patient.id === id);
+    onChange("patientId", id);
+    onChange("clientId", option?.clientId ?? "");
+  };
 
   return (
     <form
@@ -58,23 +64,19 @@ export default function RemindersFormInterface({
         <EntitySelectInterface
           label="Paciente"
           value={form.patientId}
-          onChange={(id) => onChange("patientId", id)}
+          onChange={handlePatientChange}
           options={patientOptions}
           loading={patientsLoading}
           error={errors.patientId}
           placeholder="Seleccioná el paciente"
           emptyHint="No hay pacientes cargados. Cargá uno en Pacientes."
         />
-        <EntitySelectInterface
-          label="Cliente"
-          value={form.clientId}
-          onChange={(id) => onChange("clientId", id)}
-          options={clientOptions}
-          loading={clientsLoading}
-          error={errors.clientId}
-          placeholder="Seleccioná el cliente"
-          emptyHint="No hay clientes cargados. Creá uno en Clientes."
-        />
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-ink">Cliente (dueño)</span>
+          <div className="rounded-buttons border border-line bg-surface-muted px-3 py-2 text-sm text-ink-soft">
+            {form.patientId ? clientLabel || "—" : "Se toma de la mascota seleccionada"}
+          </div>
+        </div>
         <FieldInterface label="Tipo">
           <SelectInterface
             value={form.type}
@@ -83,18 +85,6 @@ export default function RemindersFormInterface({
             {TYPE_OPTIONS.map((type) => (
               <option key={type} value={type}>
                 {REMINDER_TYPE_LABELS[type]}
-              </option>
-            ))}
-          </SelectInterface>
-        </FieldInterface>
-        <FieldInterface label="Canal">
-          <SelectInterface
-            value={form.channel}
-            onChange={(e) => onChange("channel", e.target.value as ReminderChannelType)}
-          >
-            {CHANNEL_OPTIONS.map((channel) => (
-              <option key={channel} value={channel}>
-                {REMINDER_CHANNEL_LABELS[channel]}
               </option>
             ))}
           </SelectInterface>

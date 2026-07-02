@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import {
   REPRODUCTIVE_LABELS,
   SEX_LABELS,
@@ -27,6 +29,8 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default function PatientDetailInterface({ patient, onEdit, onDelete, onBack }: Props) {
   const age = computeAge(patient.birthDate);
+  const { getLabel } = useEntityLookup("clients");
+  const ownerLabel = getLabel(patient.clientId);
 
   return (
     <div className="flex flex-col gap-5">
@@ -46,6 +50,16 @@ export default function PatientDetailInterface({ patient, onEdit, onDelete, onBa
           </ButtonInterface>
         </div>
       </div>
+
+      <CardInterface>
+        <h3 className="mb-2 font-display text-base text-brand-fg">Dueño</h3>
+        <EntityLinkInterface
+          kind="clients"
+          id={patient.clientId}
+          label={ownerLabel}
+          fallback="Sin dueño asignado"
+        />
+      </CardInterface>
 
       <CardInterface>
         <h3 className="mb-4 font-display text-base text-brand-fg">Datos generales</h3>

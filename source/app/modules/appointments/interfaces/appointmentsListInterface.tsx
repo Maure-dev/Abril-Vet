@@ -11,9 +11,11 @@ import type {
   AppointmentTypeType
 } from "@app/modules/appointments/entities/entities";
 import { formatAppointmentDate } from "@app/modules/appointments/helpers/appointmentMappers";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Calendar, Pencil } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
 
@@ -45,6 +47,8 @@ export default function AppointmentsListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -118,7 +122,13 @@ export default function AppointmentsListInterface({
                       {APPOINTMENT_TYPE_LABELS[appointment.type]}
                     </BadgeInterface>
                   </td>
-                  <td className="px-4 py-3 text-ink-soft">{appointment.patientId || "—"}</td>
+                  <td className="px-4 py-3">
+                    <EntityLinkInterface
+                      kind="patients"
+                      id={appointment.patientId}
+                      label={getPatientLabel(appointment.patientId)}
+                    />
+                  </td>
                   <td className="px-4 py-3">
                     <BadgeInterface tone={APPOINTMENT_STATUS_TONE[appointment.status]}>
                       {APPOINTMENT_STATUS_LABELS[appointment.status]}

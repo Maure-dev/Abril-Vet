@@ -5,9 +5,11 @@ import type {
   HospitalizationType
 } from "@app/modules/hospitalizations/entities/entities";
 import { computeStayDays } from "@app/modules/hospitalizations/helpers/computeStayDays";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Bed, Pencil, Plus } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
 
@@ -34,6 +36,8 @@ export default function HospitalizationsListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel } = useEntityLookup("patients");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -99,7 +103,13 @@ export default function HospitalizationsListInterface({
                   <td className="px-4 py-3 font-medium text-ink">
                     {hospitalization.admissionDate || "—"}
                   </td>
-                  <td className="px-4 py-3 text-ink-soft">{hospitalization.patientId || "—"}</td>
+                  <td className="px-4 py-3">
+                    <EntityLinkInterface
+                      kind="patients"
+                      id={hospitalization.patientId}
+                      label={getLabel(hospitalization.patientId)}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-ink-soft">{hospitalization.reason || "—"}</td>
                   <td className="px-4 py-3">
                     <BadgeInterface tone={hospitalization.status === "active" ? "info" : "success"}>
@@ -112,7 +122,7 @@ export default function HospitalizationsListInterface({
                   <td className="px-4 py-3 text-right">
                     <button
                       type="button"
-                      aria-label={`Editar internación de ${hospitalization.patientId}`}
+                      aria-label={`Editar internación de ${getLabel(hospitalization.patientId) || "paciente"}`}
                       className="inline-flex items-center gap-1 rounded-buttons px-2 py-1 text-xs text-brand-fg hover:bg-brand-tint"
                       onClick={(e) => {
                         e.stopPropagation();

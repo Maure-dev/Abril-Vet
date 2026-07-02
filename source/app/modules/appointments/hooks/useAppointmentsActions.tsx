@@ -2,6 +2,7 @@ import { EMPTY_FORM } from "@app/modules/appointments/constants/constants";
 import type {
   AppointmentFormType,
   AppointmentStatusFilterType,
+  AppointmentsViewType,
   AppointmentType,
   AppointmentTypeFilterType
 } from "@app/modules/appointments/entities/entities";
@@ -9,6 +10,7 @@ import {
   formFromAppointment,
   toAppointmentInput
 } from "@app/modules/appointments/helpers/appointmentMappers";
+import { findAppointmentConflict } from "@app/modules/appointments/helpers/findAppointmentConflict";
 import { validateAppointmentForm } from "@app/modules/appointments/helpers/validateAppointmentForm";
 import {
   createAppointment,
@@ -17,6 +19,7 @@ import {
   updateAppointment
 } from "@app/modules/appointments/services/services";
 import { useAppointmentsProvider } from "@app/modules/appointments/states/appointmentsProvider";
+import { addDays, startOfWeek, todayStr } from "@app/modules/main/helpers/weekDates";
 import { useNotification } from "@app/modules/main/hooks/useNotification";
 
 export const useAppointmentsActions = () => {
@@ -45,6 +48,40 @@ export const useAppointmentsActions = () => {
 
   const handleFilterStatus = (statusFilter: AppointmentStatusFilterType): void => {
     setAppointmentsState((s) => ({ ...s, statusFilter: statusFilter }));
+  };
+
+  // Alterna entre vista de tabla y calendario semanal.
+  const handleSetView = (view: AppointmentsViewType): void => {
+    setAppointmentsState((s) => ({ ...s, view: view }));
+  };
+
+  const handlePrevWeek = (): void => {
+    setAppointmentsState((s) => ({
+      ...s,
+      weekStart: addDays(s.weekStart || startOfWeek(todayStr()), -7)
+    }));
+  };
+
+  const handleNextWeek = (): void => {
+    setAppointmentsState((s) => ({
+      ...s,
+      weekStart: addDays(s.weekStart || startOfWeek(todayStr()), 7)
+    }));
+  };
+
+  const handleToday = (): void => {
+    setAppointmentsState((s) => ({ ...s, weekStart: startOfWeek(todayStr()) }));
+  };
+
+  // Abre el alta de turno con la fecha del día elegido en el calendario (9:00 por defecto).
+  const handleOpenCreateOnDate = (dateStr: string): void => {
+    setAppointmentsState((s) => ({
+      ...s,
+      mode: "create",
+      selected: null,
+      form: { ...EMPTY_FORM, date: `${dateStr}T09:00` },
+      errors: {}
+    }));
   };
 
   // Abre el formulario de alta.
@@ -96,6 +133,20 @@ export const useAppointmentsActions = () => {
     const errors = validateAppointmentForm(form);
     if (Object.keys(errors).length > 0) {
       setAppointmentsState((s) => ({ ...s, errors: errors }));
+      return;
+    }
+    // El veterinario no puede tener dos turnos en el mismo horario.
+    const conflict = findAppointmentConflict(
+      { vetId: form.vetId, date: form.date, durationMin: form.durationMin },
+      getAppointmentsState.items,
+      selected?.id ?? ""
+    );
+    if (conflict) {
+      onNotification(false, "Ese horario ya está ocupado para ese veterinario.");
+      setAppointmentsState((s) => ({
+        ...s,
+        errors: { ...s.errors, date: "El veterinario ya tiene un turno en ese horario." }
+      }));
       return;
     }
     setAppointmentsState((s) => ({ ...s, saving: true }));
@@ -154,6 +205,11 @@ export const useAppointmentsActions = () => {
     handleChangeField,
     handleSubmit,
     handleDelete,
-    handleCancelAppointment
+    handleCancelAppointment,
+    handleSetView,
+    handlePrevWeek,
+    handleNextWeek,
+    handleToday,
+    handleOpenCreateOnDate
   };
 };

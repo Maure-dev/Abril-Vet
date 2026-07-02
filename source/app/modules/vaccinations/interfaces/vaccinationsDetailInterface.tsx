@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { STATUS_LABELS, STATUS_TONES } from "@app/modules/vaccinations/constants/constants";
 import type { VaccinationType } from "@app/modules/vaccinations/entities/entities";
@@ -29,6 +31,9 @@ export default function VaccinationsDetailInterface({
   onBack
 }: Props) {
   const status = computeVaccineStatus(vaccination.nextDoseDate);
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+  const { getLabel: getVetLabel } = useEntityLookup("vets");
+  const patientLabel = getPatientLabel(vaccination.patientId);
 
   return (
     <div className="flex flex-col gap-5">
@@ -52,12 +57,21 @@ export default function VaccinationsDetailInterface({
       <CardInterface>
         <h3 className="mb-4 font-display text-base text-brand-fg">Datos de la vacunación</h3>
         <dl className="grid gap-4 sm:grid-cols-3">
-          <Row label="Paciente" value={vaccination.patientId} />
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Paciente</dt>
+            <dd className="text-sm">
+              <EntityLinkInterface
+                kind="patients"
+                id={vaccination.patientId}
+                label={patientLabel}
+              />
+            </dd>
+          </div>
           <Row label="Vacuna" value={vaccination.vaccineName} />
           <Row label="Fecha de aplicación" value={vaccination.date} />
           <Row label="Próxima dosis" value={vaccination.nextDoseDate} />
           <Row label="Lote" value={vaccination.batch} />
-          <Row label="Veterinario" value={vaccination.vetId} />
+          <Row label="Veterinario" value={getVetLabel(vaccination.vetId)} />
         </dl>
       </CardInterface>
 

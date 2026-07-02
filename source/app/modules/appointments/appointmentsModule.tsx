@@ -4,8 +4,11 @@ import { useAppointmentsActions } from "@app/modules/appointments/hooks/useAppoi
 import AppointmentsDetailInterface from "@app/modules/appointments/interfaces/appointmentsDetailInterface";
 import AppointmentsFormInterface from "@app/modules/appointments/interfaces/appointmentsFormInterface";
 import AppointmentsListInterface from "@app/modules/appointments/interfaces/appointmentsListInterface";
+import AppointmentsWeekInterface from "@app/modules/appointments/interfaces/appointmentsWeekInterface";
 import { useAppointmentsProvider } from "@app/modules/appointments/states/appointmentsProvider";
+import { startOfWeek, todayStr } from "@app/modules/main/helpers/weekDates";
 import { useDocumentHead } from "@app/modules/main/hooks/useDocumentHead";
+import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import PageHeaderInterface from "@app/modules/main/interfaces/pageHeaderInterface";
 import { useEffect } from "react";
 
@@ -22,12 +25,18 @@ export default function AppointmentsModule() {
     handleCancel,
     handleChangeField,
     handleSubmit,
-    handleDelete
+    handleDelete,
+    handleSetView,
+    handlePrevWeek,
+    handleNextWeek,
+    handleToday,
+    handleOpenCreateOnDate
   } = useAppointmentsActions();
   const state = getAppointmentsState;
   const visible = sortAppointmentsByDate(
     filterAppointments(state.items, state.query, state.typeFilter, state.statusFilter)
   );
+  const effectiveWeekStart = state.weekStart || startOfWeek(todayStr());
 
   useDocumentHead({
     title: "Agenda",
@@ -67,18 +76,49 @@ export default function AppointmentsModule() {
       ) : null}
 
       {state.mode === "list" ? (
-        <AppointmentsListInterface
-          items={visible}
-          query={state.query}
-          typeFilter={state.typeFilter}
-          statusFilter={state.statusFilter}
-          onSearch={handleSearch}
-          onFilterType={handleFilterType}
-          onFilterStatus={handleFilterStatus}
-          onOpenCreate={handleOpenCreate}
-          onOpenDetail={handleOpenDetail}
-          onOpenEdit={handleOpenEdit}
-        />
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <ButtonInterface
+              variant={state.view === "list" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => handleSetView("list")}
+            >
+              Lista
+            </ButtonInterface>
+            <ButtonInterface
+              variant={state.view === "week" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => handleSetView("week")}
+            >
+              Semana
+            </ButtonInterface>
+          </div>
+
+          {state.view === "week" ? (
+            <AppointmentsWeekInterface
+              items={state.items}
+              weekStart={effectiveWeekStart}
+              onPrevWeek={handlePrevWeek}
+              onNextWeek={handleNextWeek}
+              onToday={handleToday}
+              onOpenDetail={handleOpenDetail}
+              onOpenCreateOnDate={handleOpenCreateOnDate}
+            />
+          ) : (
+            <AppointmentsListInterface
+              items={visible}
+              query={state.query}
+              typeFilter={state.typeFilter}
+              statusFilter={state.statusFilter}
+              onSearch={handleSearch}
+              onFilterType={handleFilterType}
+              onFilterStatus={handleFilterStatus}
+              onOpenCreate={handleOpenCreate}
+              onOpenDetail={handleOpenDetail}
+              onOpenEdit={handleOpenEdit}
+            />
+          )}
+        </div>
       ) : null}
     </section>
   );

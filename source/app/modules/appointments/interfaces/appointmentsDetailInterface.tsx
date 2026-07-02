@@ -5,9 +5,11 @@ import {
 } from "@app/modules/appointments/constants/constants";
 import type { AppointmentType } from "@app/modules/appointments/entities/entities";
 import { formatAppointmentDate } from "@app/modules/appointments/helpers/appointmentMappers";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 
 type Props = {
   appointment: AppointmentType;
@@ -31,6 +33,13 @@ export default function AppointmentsDetailInterface({
   onDelete,
   onBack
 }: Props) {
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+  const { getLabel: getClientLabel } = useEntityLookup("clients");
+  const { getLabel: getVetLabel } = useEntityLookup("vets");
+  const patientLabel = getPatientLabel(appointment.patientId);
+  const clientLabel = getClientLabel(appointment.clientId);
+  const vetLabel = getVetLabel(appointment.vetId);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3">
@@ -59,9 +68,23 @@ export default function AppointmentsDetailInterface({
           <Row label="Duración" value={`${appointment.durationMin} min`} />
           <Row label="Tipo" value={APPOINTMENT_TYPE_LABELS[appointment.type]} />
           <Row label="Estado" value={APPOINTMENT_STATUS_LABELS[appointment.status]} />
-          <Row label="Paciente (ID)" value={appointment.patientId} />
-          <Row label="Cliente (ID)" value={appointment.clientId} />
-          <Row label="Veterinario (ID)" value={appointment.vetId} />
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Paciente</dt>
+            <dd className="text-sm">
+              <EntityLinkInterface
+                kind="patients"
+                id={appointment.patientId}
+                label={patientLabel}
+              />
+            </dd>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Cliente (dueño)</dt>
+            <dd className="text-sm">
+              <EntityLinkInterface kind="clients" id={appointment.clientId} label={clientLabel} />
+            </dd>
+          </div>
+          <Row label="Veterinario" value={vetLabel} />
         </dl>
       </CardInterface>
 

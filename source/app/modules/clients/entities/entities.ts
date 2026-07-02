@@ -14,7 +14,6 @@ export type ClientType = {
   docId: string; // DNI / CUIT
   email: string;
   phone: string;
-  whatsapp: string;
   address: string;
   city: string;
   notes: string;
@@ -34,7 +33,6 @@ export type ClientFormType = {
   docId: string;
   email: string;
   phone: string;
-  whatsapp: string;
   address: string;
   city: string;
   notes: string;

@@ -28,7 +28,7 @@ export default function RemindersModule() {
 
   useDocumentHead({
     title: "Recordatorios",
-    description: "Recordatorios de turnos, vacunas y controles por email/WhatsApp."
+    description: "Recordatorios de turnos, vacunas y controles por email."
   });
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function RemindersModule() {
     <section>
       <PageHeaderInterface
         title="Recordatorios"
-        subtitle="Recordatorios de turnos, vacunas y controles por email/WhatsApp."
+        subtitle="Recordatorios de turnos, vacunas y controles por email."
       />
 
       {state.mode === "detail" && state.selected ? (

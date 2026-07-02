@@ -18,6 +18,9 @@ export type AppointmentStatusFilterType = AppointmentStatusType | "all";
 // Modo de la página (lista / alta / edición / ficha).
 export type AppointmentsModeType = "list" | "create" | "edit" | "detail";
 
+// Vista de la lista: tabla o calendario semanal.
+export type AppointmentsViewType = "list" | "week";
+
 // ── Turno (agenda) ──
 export type AppointmentType = {
   id: string;
@@ -60,6 +63,8 @@ export type AppointmentsDataType = {
   typeFilter: AppointmentTypeFilterType;
   statusFilter: AppointmentStatusFilterType;
   mode: AppointmentsModeType;
+  view: AppointmentsViewType;
+  weekStart: string; // lunes de la semana visible en el calendario (yyyy-mm-dd; "" = semana actual)
   selected: AppointmentType | null;
   form: AppointmentFormType;
   errors: AppointmentFormErrorsType;

@@ -5,6 +5,7 @@ import ClientsFormInterface from "@app/modules/clients/interfaces/clientsFormInt
 import ClientsListInterface from "@app/modules/clients/interfaces/clientsListInterface";
 import { useClientsProvider } from "@app/modules/clients/states/clientsProvider";
 import { useDocumentHead } from "@app/modules/main/hooks/useDocumentHead";
+import { useRouter } from "@app/modules/main/hooks/useRouter";
 import PageHeaderInterface from "@app/modules/main/interfaces/pageHeaderInterface";
 import { useEffect } from "react";
 
@@ -24,6 +25,8 @@ export default function ClientsModule() {
   } = useClientsActions();
   const state = getClientsState;
   const visible = filterClients(state.items, state.query, state.statusFilter);
+  const { navigate, pathname, searchParams } = useRouter();
+  const openId = searchParams.get("id");
 
   useDocumentHead({
     title: "Clientes",
@@ -33,6 +36,18 @@ export default function ClientsModule() {
   useEffect(() => {
     handleLoad();
   }, []);
+
+  // Deep-link ?id=: al llegar desde otra ficha, abre el detalle de ese cliente y limpia la URL.
+  useEffect(() => {
+    if (!openId || state.loading) {
+      return;
+    }
+    const item = state.items.find((c) => c.id === openId);
+    if (item) {
+      handleOpenDetail(item);
+      navigate(pathname, { replace: true });
+    }
+  }, [openId, state.loading]);
 
   return (
     <section>

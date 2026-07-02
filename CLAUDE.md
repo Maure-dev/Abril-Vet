@@ -12,7 +12,7 @@ Aplicación frontend React + TypeScript + Vite + Tailwind CSS + Firebase.
 - Firebase (Auth + Firestore) como backend
 - Cloudinary para subida de archivos (fotos, estudios, PDFs) — tier gratuito, unsigned upload
   (reemplaza a Firebase Storage, que requiere plan Blaze)
-- Axios para las Vercel Functions (recordatorios email/WhatsApp) y la subida a Cloudinary, siempre vía service tipado
+- Axios para las Vercel Functions (recordatorios por email) y la subida a Cloudinary, siempre vía service tipado
 - Biome (linter + formatter)
 - Vitest + Testing Library (tests)
 

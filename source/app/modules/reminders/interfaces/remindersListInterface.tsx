@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Bell, Pencil } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
 import {
@@ -51,6 +53,9 @@ export default function RemindersListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+  const { getLabel: getClientLabel } = useEntityLookup("clients");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -103,6 +108,8 @@ export default function RemindersListInterface({
             <thead className="border-b border-line text-xs uppercase tracking-wide text-ink-soft">
               <tr>
                 <th className="px-4 py-3 font-semibold">Vencimiento</th>
+                <th className="px-4 py-3 font-semibold">Paciente</th>
+                <th className="px-4 py-3 font-semibold">Cliente</th>
                 <th className="px-4 py-3 font-semibold">Tipo</th>
                 <th className="px-4 py-3 font-semibold">Canal</th>
                 <th className="px-4 py-3 font-semibold">Estado</th>
@@ -124,6 +131,20 @@ export default function RemindersListInterface({
                         {reminder.dueDate || "—"}
                         {overdue ? <BadgeInterface tone="error">Vencido</BadgeInterface> : null}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <EntityLinkInterface
+                        kind="patients"
+                        id={reminder.patientId}
+                        label={getPatientLabel(reminder.patientId)}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <EntityLinkInterface
+                        kind="clients"
+                        id={reminder.clientId}
+                        label={getClientLabel(reminder.clientId)}
+                      />
                     </td>
                     <td className="px-4 py-3">
                       <BadgeInterface tone="brand">

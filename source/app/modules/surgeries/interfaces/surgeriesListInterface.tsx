@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Pencil, Scissors } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
 import { SURGERY_STATUS_LABELS } from "@app/modules/surgeries/constants/constants";
@@ -40,6 +42,8 @@ export default function SurgeriesListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -95,7 +99,13 @@ export default function SurgeriesListInterface({
                 >
                   <td className="px-4 py-3 text-ink-soft">{surgery.date || "—"}</td>
                   <td className="px-4 py-3 font-medium text-ink">{surgery.type || "—"}</td>
-                  <td className="px-4 py-3 text-ink-soft">{surgery.patientId || "—"}</td>
+                  <td className="px-4 py-3">
+                    <EntityLinkInterface
+                      kind="patients"
+                      id={surgery.patientId}
+                      label={getPatientLabel(surgery.patientId)}
+                    />
+                  </td>
                   <td className="px-4 py-3">
                     <BadgeInterface tone={STATUS_TONE[surgery.status]}>
                       {SURGERY_STATUS_LABELS[surgery.status]}

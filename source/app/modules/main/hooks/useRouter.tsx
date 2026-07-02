@@ -11,6 +11,7 @@ export const useRouter = () => {
     href: window.location.href,
     pathname: location.pathname,
     search: decodeURIComponent(location.search),
+    searchParams: new URLSearchParams(location.search),
     key: location.key,
     state: location.state,
     params: params,

@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { SECTION_LABELS } from "@app/modules/medicalRecords/constants/constants";
 import type { MedicalRecordType } from "@app/modules/medicalRecords/entities/entities";
@@ -26,6 +28,11 @@ function Section({ label, value }: { label: string; value: string }) {
 }
 
 export default function MedicalRecordsDetailInterface({ record, onEdit, onDelete, onBack }: Props) {
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+  const { getLabel: getVetLabel } = useEntityLookup("vets");
+  const patientLabel = getPatientLabel(record.patientId);
+  const vetLabel = getVetLabel(record.vetId);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3">
@@ -34,7 +41,7 @@ export default function MedicalRecordsDetailInterface({ record, onEdit, onDelete
           Volver
         </ButtonInterface>
         <h2 className="font-display text-xl text-ink">Consulta del {record.date || "—"}</h2>
-        <BadgeInterface tone="brand">Paciente {record.patientId || "—"}</BadgeInterface>
+        <BadgeInterface tone="brand">Paciente: {patientLabel || "—"}</BadgeInterface>
         {record.nextControlDate ? (
           <BadgeInterface tone="info">Próximo control {record.nextControlDate}</BadgeInterface>
         ) : null}
@@ -56,12 +63,14 @@ export default function MedicalRecordsDetailInterface({ record, onEdit, onDelete
             <dd className="text-sm text-ink">{record.date || "—"}</dd>
           </div>
           <div className="flex flex-col gap-0.5">
-            <dt className="text-xs uppercase tracking-wide text-ink-soft">Paciente (ID)</dt>
-            <dd className="text-sm text-ink">{record.patientId || "—"}</dd>
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Paciente</dt>
+            <dd className="text-sm">
+              <EntityLinkInterface kind="patients" id={record.patientId} label={patientLabel} />
+            </dd>
           </div>
           <div className="flex flex-col gap-0.5">
-            <dt className="text-xs uppercase tracking-wide text-ink-soft">Veterinario (ID)</dt>
-            <dd className="text-sm text-ink">{record.vetId || "—"}</dd>
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Veterinario</dt>
+            <dd className="text-sm text-ink">{vetLabel || "—"}</dd>
           </div>
           <div className="flex flex-col gap-0.5">
             <dt className="text-xs uppercase tracking-wide text-ink-soft">Próximo control</dt>

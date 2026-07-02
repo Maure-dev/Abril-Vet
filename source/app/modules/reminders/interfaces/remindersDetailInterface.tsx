@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import {
   REMINDER_CHANNEL_LABELS,
@@ -27,6 +29,10 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default function RemindersDetailInterface({ reminder, onEdit, onDelete, onBack }: Props) {
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+  const { getLabel: getClientLabel } = useEntityLookup("clients");
+  const patientLabel = getPatientLabel(reminder.patientId);
+  const clientLabel = getClientLabel(reminder.clientId);
   const overdue = reminder.status === "pending" && isReminderOverdue(reminder.dueDate);
 
   return (
@@ -56,8 +62,18 @@ export default function RemindersDetailInterface({ reminder, onEdit, onDelete, o
           <Row label="Tipo" value={REMINDER_TYPE_LABELS[reminder.type]} />
           <Row label="Canal" value={REMINDER_CHANNEL_LABELS[reminder.channel]} />
           <Row label="Estado" value={REMINDER_STATUS_LABELS[reminder.status]} />
-          <Row label="Paciente (ID)" value={reminder.patientId} />
-          <Row label="Cliente (ID)" value={reminder.clientId} />
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Paciente</dt>
+            <dd className="text-sm">
+              <EntityLinkInterface kind="patients" id={reminder.patientId} label={patientLabel} />
+            </dd>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Cliente</dt>
+            <dd className="text-sm">
+              <EntityLinkInterface kind="clients" id={reminder.clientId} label={clientLabel} />
+            </dd>
+          </div>
         </dl>
       </CardInterface>
 

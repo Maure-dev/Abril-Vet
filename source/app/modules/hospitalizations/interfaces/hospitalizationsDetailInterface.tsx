@@ -1,9 +1,11 @@
 import { STATUS_LABELS } from "@app/modules/hospitalizations/constants/constants";
 import type { HospitalizationType } from "@app/modules/hospitalizations/entities/entities";
 import { computeStayDays } from "@app/modules/hospitalizations/helpers/computeStayDays";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 
 type Props = {
@@ -37,6 +39,8 @@ export default function HospitalizationsDetailInterface({
   onDelete,
   onBack
 }: Props) {
+  const { getLabel: getPatientLabel } = useEntityLookup("patients");
+  const patientLabel = getPatientLabel(hospitalization.patientId);
   const days = computeStayDays(hospitalization.admissionDate, hospitalization.dischargeDate);
 
   return (
@@ -63,7 +67,16 @@ export default function HospitalizationsDetailInterface({
       <CardInterface>
         <h3 className="mb-4 font-display text-base text-brand-fg">Datos generales</h3>
         <dl className="grid gap-4 sm:grid-cols-3">
-          <Row label="Paciente (ID)" value={hospitalization.patientId} />
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs uppercase tracking-wide text-ink-soft">Paciente</dt>
+            <dd className="text-sm">
+              <EntityLinkInterface
+                kind="patients"
+                id={hospitalization.patientId}
+                label={patientLabel}
+              />
+            </dd>
+          </div>
           <Row label="Motivo" value={hospitalization.reason} />
           <Row label="Fecha de ingreso" value={hospitalization.admissionDate} />
           <Row label="Fecha de alta" value={hospitalization.dischargeDate} />

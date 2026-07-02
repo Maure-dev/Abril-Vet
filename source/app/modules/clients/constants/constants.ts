@@ -18,7 +18,6 @@ export const EMPTY_FORM: ClientFormType = {
   docId: "",
   email: "",
   phone: "",
-  whatsapp: "",
   address: "",
   city: "",
   notes: "",

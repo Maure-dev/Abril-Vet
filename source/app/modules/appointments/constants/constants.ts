@@ -57,6 +57,8 @@ export const INITIAL_STATE = {
     typeFilter: "all",
     statusFilter: "all",
     mode: "list",
+    view: "list",
+    weekStart: "",
     selected: null,
     form: EMPTY_FORM,
     errors: {},
