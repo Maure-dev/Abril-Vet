@@ -1,3 +1,4 @@
+import type { UserRoleType } from "@app/modules/main/entities/entities";
 import { auth, isFirebaseConfigured } from "@app/modules/main/services/firebase";
 import { db } from "@app/modules/main/services/firestore";
 import type {
@@ -36,8 +37,14 @@ export async function fetchStaff(): Promise<StaffType[]> {
   const database = requireDb();
   const snapshot = await getDocs(query(collection(database, COLLECTION), orderBy("lastName")));
   return snapshot.docs.map((snap) => {
-    const data = snap.data() as Omit<StaffType, "id">;
-    return { ...data, id: snap.id };
+    const data = snap.data() as Omit<StaffType, "id"> & { role?: UserRoleType };
+    // Compatibilidad: docs viejos con `role` (string) o sin roles → normalizamos a array.
+    const roles = Array.isArray(data.roles)
+      ? data.roles
+      : typeof data.role === "string"
+        ? [data.role]
+        : [];
+    return { ...data, roles: roles, id: snap.id };
   });
 }
 
