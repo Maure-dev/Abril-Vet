@@ -19,7 +19,8 @@ export async function requireAdmin(req: VercelRequest): Promise<{ uid: string }>
     throw new HttpError(401, "Falta el token de autenticación");
   }
   const decoded = await adminAuth().verifyIdToken(token);
-  if (decoded.role !== "admin") {
+  const roles = Array.isArray(decoded.roles) ? decoded.roles : [];
+  if (!roles.includes("admin")) {
     throw new HttpError(403, "Se requiere rol de administrador");
   }
   return { uid: decoded.uid };
