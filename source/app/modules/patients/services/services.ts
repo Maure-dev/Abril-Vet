@@ -1,4 +1,5 @@
-import { db, isFirebaseConfigured } from "@app/modules/main/services/firebase";
+import { isFirebaseConfigured } from "@app/modules/main/services/firebase";
+import { db } from "@app/modules/main/services/firestore";
 import type { PatientInputType, PatientType } from "@app/modules/patients/entities/entities";
 import {
   addDoc,

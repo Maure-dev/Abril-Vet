@@ -4,11 +4,11 @@ import { useMainProvider } from "@app/modules/main/states/mainProvider";
 import { signOut } from "firebase/auth";
 
 // Hook compartido de sesión. Lee el estado de auth que MainProvider mantiene
-// suscrito a onAuthStateChanged. El rol viene del custom claim del token (no de un campo en DB).
+// suscrito a onAuthStateChanged. Los roles vienen del custom claim del token (no de un campo en DB).
 export const useSession = () => {
   const { getMainState } = useMainProvider();
   const { session } = getMainState;
-  const role = session.user?.role ?? null;
+  const roles = session.user?.roles ?? [];
 
   // Cierra la sesión en Firebase; onAuthStateChanged actualiza el estado a "guest".
   const logout = async (): Promise<void> => {
@@ -17,18 +17,18 @@ export const useSession = () => {
     }
   };
 
-  // Chequea si el usuario tiene alguno de los roles indicados.
-  const hasRole = (roles: UserRoleType[]): boolean => {
-    return role !== null && roles.includes(role);
+  // Chequea si el usuario tiene alguno de los roles indicados (intersección).
+  const hasRole = (allowed: UserRoleType[]): boolean => {
+    return roles.some((r) => allowed.includes(r));
   };
 
   return {
     session: session,
     user: session.user,
-    role: role,
+    roles: roles,
     loading: session.status === "loading",
     isAuthenticated: session.status === "authenticated",
-    isAdmin: role === "admin",
+    isAdmin: roles.includes("admin"),
     hasRole: hasRole,
     logout: logout
   };

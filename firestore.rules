@@ -1,12 +1,19 @@
 rules_version = "2";
 
 // ─────────────────────────────────────────────────────────────
-// Reglas base de Abril Vet — esqueleto de seguridad por roles.
-// Deny-by-default: nada es accesible salvo lo declarado explícitamente.
-// El rol vive en un custom claim del token (request.auth.token.role),
-// seteado por una Cloud Function / script de administración (no editable por el cliente).
-// Roles: "admin" | "vet" | "receptionist" | "assistant".
-// A medida que se modele cada dominio, agregá el match/collection correspondiente.
+// Reglas de seguridad de Abril Vet — deny-by-default, por área/rol.
+// Los roles viven en el custom claim `roles` (lista) del token, seteado por el backend
+// (Vercel Functions con Admin SDK) o el script de bootstrap. Roles: admin | vet | receptionist | assistant.
+// El Admin SDK del backend ignora estas reglas (acceso total del servidor).
+//
+// Áreas (alineadas con la navegación):
+//   • Compartido (todo el personal): clients, patients, appointments.
+//   • Clínica (admin, vet, assistant): medicalRecords, vaccinations, reminders, studies,
+//     surgeries, hospitalizations.
+//   • Comercial (admin, receptionist): sales, invoices, products, stockMovements,
+//     purchaseOrders, cashSessions, reports.
+//   • Personal (staff): lectura para el personal (lo usa el selector de veterinarios);
+//     las escrituras van sólo por el backend (Admin SDK).
 // ─────────────────────────────────────────────────────────────
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -16,37 +23,62 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function role() {
-      return isSignedIn() ? request.auth.token.role : "";
+    // Roles del token (claim `roles`, lista). Vacío si no está seteado.
+    function userRoles() {
+      return isSignedIn() && "roles" in request.auth.token ? request.auth.token.roles : [];
     }
 
-    function hasRole(roles) {
-      return isSignedIn() && role() in roles;
+    function hasAnyRole(allowed) {
+      return isSignedIn() && userRoles().hasAny(allowed);
     }
 
     function isAdmin() {
-      return hasRole(["admin"]);
+      return hasAnyRole(["admin"]);
     }
 
-    // Personal de la clínica (cualquier rol interno autenticado).
+    // Cualquier rol interno autenticado.
     function isStaff() {
-      return hasRole(["admin", "vet", "receptionist", "assistant"]);
+      return hasAnyRole(["admin", "vet", "receptionist", "assistant"]);
     }
 
-    // ── Usuarios / personal ──
-    // Cada usuario lee su propio doc; sólo admin administra el resto.
-    match /users/{userId} {
-      allow read: if isSignedIn() && (request.auth.uid == userId || isStaff());
-      allow write: if isAdmin();
+    // Equipo clínico.
+    function isClinical() {
+      return hasAnyRole(["admin", "vet", "assistant"]);
     }
 
-    // ── Dominio clínico y comercial (a completar por módulo) ──
-    // Plantilla: el personal lee/escribe; sólo admin borra. Ajustá por colección
-    // cuando definas el modelo de datos de cada módulo (patients, appointments, ...).
-    match /{collection}/{docId} {
+    // Equipo comercial / administración.
+    function isCommercial() {
+      return hasAnyRole(["admin", "receptionist"]);
+    }
+
+    // ── Personal / usuarios ──
+    // Lectura para el personal (necesaria para el selector de veterinarios). Las altas, bajas,
+    // cambios de rol/estado y contraseñas pasan por el backend (Admin SDK), que ignora estas reglas.
+    match /staff/{staffId} {
       allow read: if isStaff();
-      allow create, update: if isStaff();
-      allow delete: if isAdmin();
+      allow write: if false;
     }
+
+    // ── Compartido: recepción crea/agenda; el equipo clínico también los usa ──
+    match /clients/{id}          { allow read, create, update: if isStaff(); allow delete: if isAdmin(); }
+    match /patients/{id}         { allow read, create, update: if isStaff(); allow delete: if isAdmin(); }
+    match /appointments/{id}     { allow read, create, update: if isStaff(); allow delete: if isAdmin(); }
+
+    // ── Clínica: sólo veterinarios, asistentes y admin ──
+    match /medicalRecords/{id}   { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
+    match /vaccinations/{id}     { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
+    match /reminders/{id}        { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
+    match /studies/{id}          { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
+    match /surgeries/{id}        { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
+    match /hospitalizations/{id} { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
+
+    // ── Comercial: sólo recepción y admin ──
+    match /sales/{id}            { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
+    match /invoices/{id}         { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
+    match /products/{id}         { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
+    match /stockMovements/{id}   { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
+    match /purchaseOrders/{id}   { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
+    match /cashSessions/{id}     { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
+    match /reports/{id}          { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
   }
 }

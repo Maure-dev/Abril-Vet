@@ -1,0 +1,13 @@
+{
+  "name": "abril-vet-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Scripts de administración de Abril Vet (fuera del bundle de la app). Usan el Admin SDK de Firebase.",
+  "scripts": {
+    "set-role": "node setUserRole.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.1.0"
+  }
+}

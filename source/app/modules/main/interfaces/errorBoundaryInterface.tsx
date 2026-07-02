@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from "react";
+import LogoInterface from "./logoInterface";
 
 type Props = { children: ReactNode };
 type State = { hasError: boolean };
@@ -19,6 +20,7 @@ export default class ErrorBoundaryInterface extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="mx-auto flex min-h-[50vh] max-w-xl flex-col items-center justify-center gap-3 p-6 text-center">
+          <LogoInterface variant="vertical" className="max-h-60" />
           <h1 className="font-display text-2xl text-ink">Algo salió mal</h1>
           <p className="text-ink-soft">
             Ocurrió un error inesperado. Por favor, recargá la página.

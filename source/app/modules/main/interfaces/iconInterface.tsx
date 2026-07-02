@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@app/modules/main/interfaces/icons";
 
 type Size = "sm" | "md" | "lg";
 
@@ -14,7 +14,7 @@ type Props = {
 const SIZE = { sm: "h-4 w-4", md: "h-5 w-5", lg: "h-6 w-6" };
 
 // Wrapper de íconos (lucide): unifica tamaño, grosor de trazo y accesibilidad.
-// Uso: import { PawPrint } from "lucide-react";  <IconInterface icon={PawPrint} />
+// Uso: import { PawPrint } from "@app/modules/main/interfaces/icons";  <IconInterface icon={PawPrint} />
 export default function IconInterface({ icon: Icon, size = "md", className = "", label }: Props) {
   return (
     <Icon

@@ -1,4 +1,6 @@
+import { useEntityOptions } from "@app/modules/main/hooks/useEntityOptions";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
+import EntitySelectInterface from "@app/modules/main/interfaces/entitySelectInterface";
 import FieldInterface from "@app/modules/main/interfaces/fieldInterface";
 import {
   InputInterface,
@@ -41,6 +43,8 @@ export default function PatientFormInterface({
   onSubmit,
   onCancel
 }: Props) {
+  const { options: clientOptions, loading: clientsLoading } = useEntityOptions("clients");
+
   return (
     <form
       onSubmit={(e) => {
@@ -53,17 +57,17 @@ export default function PatientFormInterface({
         <FieldInterface label="Nombre" error={errors.name} required>
           <InputInterface value={form.name} onChange={(e) => onChange("name", e.target.value)} />
         </FieldInterface>
-        <FieldInterface
-          label="Cliente (ID)"
+        <EntitySelectInterface
+          label="Cliente"
+          value={form.clientId}
+          onChange={(id) => onChange("clientId", id)}
+          options={clientOptions}
+          loading={clientsLoading}
           error={errors.clientId}
-          hint="Referencia al dueño del paciente"
           required
-        >
-          <InputInterface
-            value={form.clientId}
-            onChange={(e) => onChange("clientId", e.target.value)}
-          />
-        </FieldInterface>
+          placeholder="Seleccioná el cliente"
+          emptyHint="No hay clientes cargados. Creá uno en Clientes."
+        />
         <FieldInterface label="Especie">
           <SelectInterface
             value={form.species}

@@ -1,4 +1,4 @@
-import { DEFAULT_ROLE, INITIAL_STATE } from "@app/modules/main/constants/constants";
+import { DEFAULT_ROLES, INITIAL_STATE } from "@app/modules/main/constants/constants";
 import type {
   ChildrenType,
   CurrentUserType,
@@ -12,11 +12,18 @@ import { MainContext } from "./mainContext";
 
 const VALID_ROLES: UserRoleType[] = ["admin", "vet", "receptionist", "assistant"];
 
-// Lee el rol del custom claim del token (mínimo privilegio si no es válido).
-function resolveRole(claim: unknown): UserRoleType {
-  return typeof claim === "string" && VALID_ROLES.includes(claim as UserRoleType)
-    ? (claim as UserRoleType)
-    : DEFAULT_ROLE;
+// Lee los roles del custom claim `roles` (array). Acepta también el claim legacy `role` (string).
+// Si no hay ninguno válido, cae al mínimo privilegio.
+function resolveRoles(claims: Record<string, unknown>): UserRoleType[] {
+  const raw = Array.isArray(claims.roles)
+    ? claims.roles
+    : typeof claims.role === "string"
+      ? [claims.role]
+      : [];
+  const valid = raw.filter(
+    (r): r is UserRoleType => typeof r === "string" && VALID_ROLES.includes(r as UserRoleType)
+  );
+  return valid.length > 0 ? valid : DEFAULT_ROLES;
 }
 
 export default function MainProvider({ children }: ChildrenType) {
@@ -35,19 +42,19 @@ export default function MainProvider({ children }: ChildrenType) {
         setMainState((s) => ({ ...s, session: { status: "guest", user: null } }));
         return;
       }
-      let role: UserRoleType = DEFAULT_ROLE;
+      let roles: UserRoleType[] = DEFAULT_ROLES;
       try {
         const token = await fbUser.getIdTokenResult();
-        role = resolveRole(token.claims.role);
+        roles = resolveRoles(token.claims);
       } catch {
-        role = DEFAULT_ROLE;
+        roles = DEFAULT_ROLES;
       }
       const user: CurrentUserType = {
         uid: fbUser.uid,
         email: fbUser.email,
         displayName: fbUser.displayName,
         photoURL: fbUser.photoURL,
-        role: role
+        roles: roles
       };
       setMainState((s) => ({ ...s, session: { status: "authenticated", user: user } }));
     });

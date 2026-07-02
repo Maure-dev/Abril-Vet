@@ -18,7 +18,8 @@ export type CurrentUserType = {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
-  role: UserRoleType;
+  // Un usuario puede tener varios roles (ve las vistas de todos ellos).
+  roles: UserRoleType[];
 };
 
 export type SessionType = {
@@ -47,6 +48,28 @@ export type AttachmentType = {
   contentType: string;
   sizeBytes?: number;
   uploadedAt?: string;
+};
+
+// Resultado de una subida a Cloudinary (ver modules/main/services/fileUpload.ts).
+export type UploadedFileType = {
+  url: string;
+  publicId: string;
+  format: string;
+  bytes: number;
+  resourceType: string;
+  name: string;
+};
+
+// ── Lookups (selectores de entidades relacionadas) ──
+
+// Qué colección se puede buscar/seleccionar desde un formulario.
+export type LookupKindType = "clients" | "patients" | "vets" | "products";
+
+// Opción de un selector: id + etiqueta (y una línea secundaria opcional).
+export type OptionType = {
+  id: string;
+  label: string;
+  sublabel?: string;
 };
 
 // ── Notificación global (toast) ──

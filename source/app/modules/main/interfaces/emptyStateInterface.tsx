@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@app/modules/main/interfaces/icons";
 import type { ReactNode } from "react";
 import IconInterface from "./iconInterface";
 

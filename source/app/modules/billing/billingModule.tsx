@@ -1,25 +1,85 @@
+import { filterInvoices } from "@app/modules/billing/helpers/filterInvoices";
+import { useBillingActions } from "@app/modules/billing/hooks/useBillingActions";
+import BillingDetailInterface from "@app/modules/billing/interfaces/billingDetailInterface";
+import BillingFormInterface from "@app/modules/billing/interfaces/billingFormInterface";
+import BillingListInterface from "@app/modules/billing/interfaces/billingListInterface";
+import { useBillingProvider } from "@app/modules/billing/states/billingProvider";
 import { useDocumentHead } from "@app/modules/main/hooks/useDocumentHead";
-import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
 import PageHeaderInterface from "@app/modules/main/interfaces/pageHeaderInterface";
-import { Receipt } from "lucide-react";
+import { useEffect } from "react";
 
 export default function BillingModule() {
+  const { getBillingState } = useBillingProvider();
+  const {
+    handleLoad,
+    handleSearch,
+    handleFilterStatus,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleOpenDetail,
+    handleCancel,
+    handleChangeField,
+    handleChangeItem,
+    handleAddItem,
+    handleRemoveItem,
+    handleSubmit,
+    handleDelete
+  } = useBillingActions();
+  const state = getBillingState;
+  const visible = filterInvoices(state.items, state.query, state.statusFilter);
+
   useDocumentHead({
-    title: "Facturacion",
-    description: "Facturacion de consultas, servicios y productos."
+    title: "Facturación",
+    description: "Facturación de consultas, servicios y productos."
   });
+
+  useEffect(() => {
+    handleLoad();
+  }, []);
 
   return (
     <section>
       <PageHeaderInterface
-        title="Facturacion"
-        subtitle="Facturacion de consultas, servicios y productos."
+        title="Facturación"
+        subtitle="Facturación de consultas, servicios y productos, con medios de pago y estado de cuenta."
       />
-      <EmptyStateInterface
-        icon={Receipt}
-        title="Modulo en construccion"
-        description="Este modulo va a gestionar la facturacion, medios de pago, pagos parciales y estado de cuenta. La estructura (estado, entities y ruta) ya esta lista para implementarlo."
-      />
+
+      {state.mode === "detail" && state.selected ? (
+        <BillingDetailInterface
+          invoice={state.selected}
+          onEdit={handleOpenEdit}
+          onDelete={handleDelete}
+          onBack={handleCancel}
+        />
+      ) : null}
+
+      {state.mode === "create" || state.mode === "edit" ? (
+        <BillingFormInterface
+          form={state.form}
+          errors={state.errors}
+          saving={state.saving}
+          isEdit={state.mode === "edit"}
+          onChange={handleChangeField}
+          onChangeItem={handleChangeItem}
+          onAddItem={handleAddItem}
+          onRemoveItem={handleRemoveItem}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
+      ) : null}
+
+      {state.mode === "list" ? (
+        <BillingListInterface
+          items={visible}
+          query={state.query}
+          statusFilter={state.statusFilter}
+          onSearch={handleSearch}
+          onFilterStatus={handleFilterStatus}
+          onOpenCreate={handleOpenCreate}
+          onOpenDetail={handleOpenDetail}
+          onOpenEdit={handleOpenEdit}
+        />
+      ) : null}
     </section>
   );
 }

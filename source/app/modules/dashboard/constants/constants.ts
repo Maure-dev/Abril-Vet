@@ -1,5 +1,13 @@
 import type { DashboardDataType, DashboardKpiType } from "@app/modules/dashboard/entities/entities";
-import { Bell, Calendar, PawPrint, Receipt, ShoppingCart, Syringe, Users } from "lucide-react";
+import {
+  Bell,
+  Calendar,
+  PawPrint,
+  Receipt,
+  ShoppingCart,
+  Syringe,
+  Users
+} from "@app/modules/main/interfaces/icons";
 
 // KPIs de ejemplo. Los valores se conectarán a Firestore cuando se modele cada dominio.
 export const PLACEHOLDER_KPIS: DashboardKpiType[] = [

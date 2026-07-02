@@ -1,9 +1,10 @@
 import { type FirebaseApp, getApps, initializeApp } from "firebase/app";
 import { type Auth, getAuth } from "firebase/auth";
-import { type Firestore, getFirestore } from "firebase/firestore";
-import { type FirebaseStorage, getStorage } from "firebase/storage";
 
 // Config web (PÚBLICA) tomada de las variables ENV_ (se embeben en el bundle de Vite).
+// Sólo inicializa la app + Auth (lo que el shell necesita al arrancar). Firestore vive en
+// firestore.ts (se importa recién desde el código lazy → no entra al bundle inicial).
+// Los archivos (fotos, estudios, PDFs) NO usan Firebase Storage (requiere Blaze): van a Cloudinary.
 const config = {
   apiKey: import.meta.env.ENV_FIREBASE_API_KEY,
   authDomain: import.meta.env.ENV_FIREBASE_AUTH_DOMAIN,
@@ -19,14 +20,10 @@ export const isFirebaseConfigured = Boolean(config.apiKey && config.projectId &&
 
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
-let db: Firestore | null = null;
-let storage: FirebaseStorage | null = null;
 
 if (isFirebaseConfigured) {
   app = getApps().length > 0 ? getApps()[0] : initializeApp(config);
   auth = getAuth(app);
-  db = getFirestore(app);
-  storage = getStorage(app);
 }
 
-export { app, auth, db, storage };
+export { app, auth };

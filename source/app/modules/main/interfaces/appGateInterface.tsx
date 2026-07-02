@@ -10,7 +10,7 @@ export default function AppGateInterface({ children }: ChildrenType) {
   if (loading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-canvas">
-        <LogoInterface />
+        <LogoInterface variant="vertical" className="max-h-60" />
         <div
           role="status"
           aria-label="Cargando Abril Vet"

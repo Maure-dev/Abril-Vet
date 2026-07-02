@@ -1,5 +1,5 @@
 import { useTheme } from "@app/modules/main/hooks/useTheme";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "@app/modules/main/interfaces/icons";
 import IconInterface from "./iconInterface";
 
 // Botón para alternar modo claro/oscuro (usa el hook compartido useTheme).

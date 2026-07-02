@@ -19,6 +19,9 @@ source/coverage/
 # Firebase
 .firebase/
 firebase-debug.log
+# Clave de servicio del Admin SDK (NUNCA commitear)
+service-account*.json
+**/service-account*.json
 
 # Tooling local de Claude Code
 .claude

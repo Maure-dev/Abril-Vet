@@ -1,6 +1,7 @@
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
+import { PawPrint, Pencil } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
 import { SPECIES_LABELS } from "@app/modules/patients/constants/constants";
 import type {
@@ -8,7 +9,6 @@ import type {
   SpeciesFilterType,
   SpeciesType
 } from "@app/modules/patients/entities/entities";
-import { PawPrint, Pencil } from "lucide-react";
 
 type Props = {
   items: PatientType[];

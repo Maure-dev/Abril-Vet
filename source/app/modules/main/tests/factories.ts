@@ -8,7 +8,7 @@ export function buildCurrentUser(overrides: Partial<CurrentUserType> = {}): Curr
     email: "vet@abril.test",
     displayName: "Dra. de prueba",
     photoURL: null,
-    role: "vet",
+    roles: ["vet"],
     ...overrides
   };
 }

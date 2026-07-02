@@ -6,81 +6,81 @@
    ───────────────────────────────────────────────────────────── */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* ── Paleta cruda (LIGHT) — armonía violeta + natural de Abril Vet ──
+/* ── Paleta cruda (LIGHT) — identidad de Abril Vet: teal (marca) + azul + verde ──
    Los tokens semánticos de abajo (@theme inline) apuntan a estas variables,
    así las utilidades (bg-canvas, text-ink, ...) responden al tema en runtime. */
 :root {
   color-scheme: light;
 
-  /* Bases neutras (Gris Neutral #ECEFF1 como fondo por excelencia) */
-  --canvas: #eceff1;
+  /* Bases neutras frías (como el fondo del logo) */
+  --canvas: #f2f6f7;
   --surface: #ffffff;
-  --surface-muted: #f4f1f8;
+  --surface-muted: #e9f1f1;
 
   /* Texto */
-  --ink: #241a33; /* texto principal (violeta muy oscuro) → AA sobre canvas/surface */
-  --ink-soft: #665e73; /* texto secundario / captions */
+  --ink: #1c3a40; /* texto principal (teal-slate oscuro) → AA sobre canvas/surface */
+  --ink-soft: #587079; /* texto secundario / captions */
 
   /* Bordes y divisores */
-  --line: #e2dcea; /* borde lavanda-gris suave */
+  --line: #d5e3e4;
 
-  /* Marca (Violeta Principal #4A148C) — 4 roles para theming robusto */
-  --brand: #4a148c; /* fondo sólido de acciones/nav; pareja con texto blanco */
-  --brand-hover: #38106b; /* hover del sólido */
-  --brand-fg: #6a1b9a; /* marca como texto/ícono sobre superficies neutras (links, activos) */
-  --brand-tint: #f1e6f7; /* fondo tenue con tinte de marca (chips, item activo) */
+  /* Marca (teal del logo, "ABRIL") — 4 roles para theming robusto */
+  --brand: #0f766e; /* fondo sólido de acciones/nav; pareja con texto blanco (AA) */
+  --brand-hover: #0b5a54; /* hover del sólido */
+  --brand-fg: #0f766e; /* marca como texto/ícono sobre superficies claras (links, activos, títulos) */
+  --brand-tint: #d6efeb; /* fondo tenue con tinte de marca (chips, item activo) */
 
-  /* Lavanda Calma #AB47BC / Púrpura Medio #E1BEE7 — acentos decorativos */
-  --lavender: #ab47bc;
-  --purple-soft: #e1bee7;
+  /* Acento secundario: azul del logo ("VET") */
+  --accent: #2f6fa8;
+  --accent-soft: #dceaf6;
 
-  /* Oro Cálido #FFD54F — highlights, estados importantes */
-  --gold: #ffd54f;
+  /* Oro cálido — highlights y estados importantes */
+  --gold: #f2b705;
   --gold-fg: #8a5a00; /* ámbar accesible para texto/ícono sobre fondo claro */
 
-  /* Semánticos (Verde Menta = éxito/confirmar, Azul Confianza = info/acción) */
-  --success: #0e7a6b; /* verde menta */
-  --success-tint: #d7f0ec;
+  /* Semánticos (verde de las hojas del logo = éxito/confirmar; azul = info) */
+  --success: #3f7d34; /* verde hoja */
+  --success-tint: #e1f0d9;
   --warning: #b45309;
   --warning-tint: #fdecc8;
   --error: #c62828;
   --error-tint: #fbe3e3;
-  --info: #1565c0; /* azul confianza */
-  --info-tint: #dceafb;
+  --info: #2f6fa8; /* azul confianza */
+  --info-tint: #dceaf6;
 }
 
 /* ── Paleta cruda (DARK) — mismos roles, valores con contraste sobre fondo oscuro ── */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --canvas: #14101b;
-  --surface: #1d1826;
-  --surface-muted: #251f31;
+  --canvas: #0d1a1c;
+  --surface: #13272b;
+  --surface-muted: #1b3238;
 
-  --ink: #ece6f2;
-  --ink-soft: #a79fb3;
+  --ink: #e6f0f0;
+  --ink-soft: #9db4b8;
 
-  --line: #332b42;
+  --line: #2a4046;
 
-  --brand: #7b1fa2;
-  --brand-hover: #8e24aa;
-  --brand-fg: #ce93d8;
-  --brand-tint: #2a1e3a;
+  --brand: #0f766e;
+  --brand-hover: #12897b;
+  --brand-fg: #2dd4bf; /* teal brillante para texto/ícono sobre fondo oscuro */
+  --brand-tint: #0f3b37;
 
-  --lavender: #c061d4;
-  --purple-soft: #3a2b4d;
+  --accent: #5b9bd5;
+  --accent-soft: #17323f;
 
-  --gold: #ffd54f;
-  --gold-fg: #ffca28;
+  --gold: #f2b705;
+  --gold-fg: #f2c14e;
 
-  --success: #26a69a;
-  --success-tint: #113a36;
+  --success: #5cae4a;
+  --success-tint: #16331b;
   --warning: #e0952a;
   --warning-tint: #3a2a12;
   --error: #ef5350;
   --error-tint: #3a1a1a;
-  --info: #64b5f6;
-  --info-tint: #12263d;
+  --info: #5b9bd5;
+  --info-tint: #12283a;
 }
 
 /* ── Tokens semánticos (inline → las utilidades leen la var cruda y responden al tema) ── */
@@ -99,8 +99,8 @@
   --color-brand-fg: var(--brand-fg);
   --color-brand-tint: var(--brand-tint);
 
-  --color-lavender: var(--lavender);
-  --color-purple-soft: var(--purple-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
 
   --color-gold: var(--gold);
   --color-gold-fg: var(--gold-fg);
@@ -126,10 +126,10 @@
   --radius-buttons: 0.625rem;
   --radius-card: 1rem;
 
-  --shadow-soft: 0 0.0625rem 0.125rem rgba(20, 16, 27, 0.05),
-    0 0.5rem 1.875rem rgba(20, 16, 27, 0.08);
-  --shadow-card: 0 0.0625rem 0.125rem rgba(20, 16, 27, 0.04),
-    0 0.25rem 0.75rem rgba(20, 16, 27, 0.06);
+  --shadow-soft: 0 0.0625rem 0.125rem rgba(15, 42, 46, 0.05),
+    0 0.5rem 1.875rem rgba(15, 42, 46, 0.08);
+  --shadow-card: 0 0.0625rem 0.125rem rgba(15, 42, 46, 0.04),
+    0 0.25rem 0.75rem rgba(15, 42, 46, 0.06);
 
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);

@@ -1,6 +1,6 @@
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
-import { Bed, Calendar, Clock, Syringe } from "lucide-react";
+import { Bed, Calendar, Clock, Syringe } from "@app/modules/main/interfaces/icons";
 
 const PANELS = [
   { key: "today", title: "Agenda del día", icon: Calendar },

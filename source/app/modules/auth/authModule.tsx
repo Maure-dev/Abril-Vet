@@ -34,11 +34,11 @@ export default function AuthModule() {
   }, [isRecover]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-canvas px-4 py-10">
-      <div className="flex w-full max-w-sm items-center justify-between">
-        <LogoInterface />
+    <main className="relative flex min-h-screen flex-col items-center justify-center gap-6 bg-canvas px-4 py-10">
+      <div className="absolute right-4 top-4">
         <ThemeToggleInterface />
       </div>
+      <LogoInterface variant="vertical" className="max-h-60" />
       <div className="w-full max-w-sm rounded-card border border-line bg-surface p-6 shadow-card">
         <h1 className="mb-1 font-display text-xl text-brand-fg">
           {isRecover ? "Recuperar contraseña" : "Iniciar sesión"}

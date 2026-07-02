@@ -9,17 +9,23 @@ Aplicación frontend React + TypeScript + Vite + Tailwind CSS + Firebase.
 - Vite (bundler)
 - Tailwind CSS v4 vía `@tailwindcss/vite` (tema CSS-first con `@theme`, sin `tailwind.config.js`)
 - React Router (routing declarativo) — importar siempre desde `react-router`
-- Firebase (Auth + Firestore + Storage) como backend
-- Axios sólo para las Vercel Functions (recordatorios email/WhatsApp), a través de un service tipado
+- Firebase (Auth + Firestore) como backend
+- Cloudinary para subida de archivos (fotos, estudios, PDFs) — tier gratuito, unsigned upload
+  (reemplaza a Firebase Storage, que requiere plan Blaze)
+- Axios para las Vercel Functions (recordatorios email/WhatsApp) y la subida a Cloudinary, siempre vía service tipado
 - Biome (linter + formatter)
 - Vitest + Testing Library (tests)
 
 ## Layout
 
-- `source/` — raíz del proyecto npm (todo el código vive acá)
-- `source/app/` — código de la aplicación (raíz de Vite en dev/build)
+- `source/` — raíz del proyecto npm del frontend (todo el código de la app en `source/app/`)
+- `source/app/` — frontend (raíz de Vite en dev/build)
+- `api/` — backend en la raíz del repo (mismo lineamiento que carilidesign): Vercel Functions (Node)
+  con Firebase **Admin SDK**. Tiene su **propio `api/package.json` + `api/tsconfig.json` + `api/.gitignore`**
+  (deps aisladas, NodeNext) — no está en el gate de tsc/biome del frontend. Administra usuarios de Auth (Personal).
 - `deploy.sh` — wrapper que corre los scripts npm dentro de `source/`
-- Deploy: **Vercel** (`vercel.json`, rewrites SPA, build a `source/dist/`)
+- Deploy: **Vercel** (`vercel.json` en la raíz: `buildCommand: cd source && npm run build`,
+  `outputDirectory: source/dist`, rewrites SPA). Root Directory del proyecto Vercel = raíz del repo.
 
 ```
 source/app/
@@ -75,8 +81,11 @@ React Context + `useState` exclusivamente (sin Redux/Zustand).
 - El provider expone el par `get[Name]State` / `set[Name]State`.
 - Updates siempre con callback: `setState((prev) => ({ ...prev, ... }))`.
 - Context: `createContext<[Name]ContextType | null>(null)`. `ChildrenType` desde `modules/main`.
-- Estado global (`main`): `{ notification, session }`. La sesión (Firebase Auth) incluye el `role`
-  del usuario (`admin | vet | receptionist | assistant`), leído del custom claim del token.
+- Estado global (`main`): `{ notification, session }`. La sesión (Firebase Auth) incluye los `roles`
+  del usuario (lista de `admin | vet | receptionist | assistant`), leídos del custom claim `roles`
+  del token. Un usuario puede tener **varios roles**. `useSession().hasRole(allowed)` devuelve true si
+  hay intersección. La navegación filtra por rol: clínica = vet/asistente/admin; comercial =
+  recepcionista/admin; Personal = admin.
 
 ## Routing
 
@@ -100,10 +109,24 @@ React Context + `useState` exclusivamente (sin Redux/Zustand).
 - Todas las llamadas a Firestore/Firebase en `modules/[name]/services/services.ts`, tipadas
   (request y response) con tipos del propio módulo. Funciones async que hacen `throw` en error.
 - El manejo de errores (try/catch) y las notificaciones van en los **hooks**, no en los services.
-- Firebase se inicializa en `modules/main/services/firebase.ts` (guarda `isFirebaseConfigured`:
-  la app corre en dev/tests sin credenciales).
+- Firebase se inicializa en `modules/main/services/firebase.ts` (Auth + Firestore; guarda
+  `isFirebaseConfigured`: la app corre en dev/tests sin credenciales).
+- Archivos: `modules/main/services/fileUpload.ts` sube a Cloudinary (unsigned, `isUploadConfigured`).
+  No se usa Firebase Storage.
+- **Administración de usuarios (Personal):** las operaciones privilegiadas (crear usuario en Auth,
+  deshabilitar acceso, cambiar contraseña, setear el rol/claim) NO se pueden hacer desde el cliente.
+  El módulo `staff` lee el directorio por Firestore, pero para escribir llama a las Functions de
+  `api/staff` (Admin SDK) vía axios, mandando el ID token del admin (`Authorization: Bearer`).
+  El backend verifica que el que llama tenga rol `admin` (`api/_lib/http.ts`). El primer admin se
+  bootstrapea una única vez con `scripts/setUserRole.mjs`.
 - Variables de entorno públicas con prefijo `ENV_` (`envPrefix`, embebidas en el bundle). Los secretos
   NO llevan `ENV_` y sólo los consumen las Vercel Functions en `/api`.
+- **Seguridad de datos (`firestore.rules`):** deny-by-default, por área/rol (lee el claim `roles`).
+  Compartido (todo el personal): `clients`, `patients`, `appointments`. Clínica (admin/vet/assistant):
+  `medicalRecords`, `vaccinations`, `reminders`, `studies`, `surgeries`, `hospitalizations`. Comercial
+  (admin/receptionist): `sales`, `invoices`, `products`, `stockMovements`, `purchaseOrders`,
+  `cashSessions`, `reports`. `staff`: lectura del personal, escritura sólo por backend. Borrado: admin.
+  Si agregás una colección nueva, sumá su `match`: lo no declarado queda denegado.
 
 ## Code style
 

@@ -1,6 +1,6 @@
 import { useMountTransition } from "@app/modules/main/hooks/useMountTransition";
+import { AlertCircle, CheckCircle2 } from "@app/modules/main/interfaces/icons";
 import { useMainProvider } from "@app/modules/main/states/mainProvider";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useEffect } from "react";
 import IconInterface from "./iconInterface";
 

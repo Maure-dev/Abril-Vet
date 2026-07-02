@@ -2,7 +2,7 @@ import { ROLE_LABELS } from "@app/modules/main/constants/constants";
 import type { UserRoleType } from "@app/modules/main/entities/entities";
 import { useRouter } from "@app/modules/main/hooks/useRouter";
 import { useSession } from "@app/modules/main/hooks/useSession";
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@app/modules/main/interfaces/icons";
 import {
   BarChart3,
   Bed,
@@ -25,11 +25,12 @@ import {
   Users,
   Wallet,
   X
-} from "lucide-react";
-import { useEffect, useState } from "react";
+} from "@app/modules/main/interfaces/icons";
+import { Suspense, useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
 import ErrorBoundaryInterface from "./errorBoundaryInterface";
 import IconInterface from "./iconInterface";
+import LoadingInterface from "./loadingInterface";
 import LogoInterface from "./logoInterface";
 import NotificationInterface from "./notificationInterface";
 import SkipLinkInterface from "./skipLinkInterface";
@@ -48,7 +49,12 @@ type NavGroup = {
   items: NavItem[];
 };
 
-// Mapa de navegación de la app. `roles` restringe la visibilidad del ítem por rol.
+// Roles por área. Clínica: veterinario y asistente (+ admin). Comercial: recepcionista (+ admin).
+// Clientes, pacientes y agenda los ven todos (recepción los crea/agenda; el equipo clínico los usa).
+const CLINICAL: UserRoleType[] = ["admin", "vet", "assistant"];
+const COMMERCIAL: UserRoleType[] = ["admin", "receptionist"];
+
+// Mapa de navegación de la app. `roles` restringe la visibilidad del ítem (si se omite, lo ven todos).
 const NAV_GROUPS: NavGroup[] = [
   {
     title: "Clínica",
@@ -57,24 +63,24 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/clientes", label: "Clientes", icon: Users },
       { to: "/pacientes", label: "Pacientes", icon: PawPrint },
       { to: "/agenda", label: "Agenda", icon: Calendar },
-      { to: "/historia-clinica", label: "Historia clínica", icon: Stethoscope },
-      { to: "/vacunacion", label: "Vacunación", icon: Syringe },
-      { to: "/recordatorios", label: "Recordatorios", icon: Bell },
-      { to: "/estudios", label: "Estudios", icon: FlaskConical },
-      { to: "/cirugias", label: "Cirugías", icon: Scissors },
-      { to: "/internaciones", label: "Internaciones", icon: Bed }
+      { to: "/historia-clinica", label: "Historia clínica", icon: Stethoscope, roles: CLINICAL },
+      { to: "/vacunacion", label: "Vacunación", icon: Syringe, roles: CLINICAL },
+      { to: "/recordatorios", label: "Recordatorios", icon: Bell, roles: CLINICAL },
+      { to: "/estudios", label: "Estudios", icon: FlaskConical, roles: CLINICAL },
+      { to: "/cirugias", label: "Cirugías", icon: Scissors, roles: CLINICAL },
+      { to: "/internaciones", label: "Internaciones", icon: Bed, roles: CLINICAL }
     ]
   },
   {
     title: "Comercial",
     items: [
-      { to: "/ventas", label: "Ventas (POS)", icon: ShoppingCart },
-      { to: "/facturacion", label: "Facturación", icon: Receipt },
-      { to: "/productos", label: "Productos", icon: Package },
-      { to: "/inventario", label: "Inventario", icon: Boxes },
-      { to: "/compras", label: "Compras", icon: Truck },
-      { to: "/caja", label: "Caja", icon: Wallet, roles: ["admin", "receptionist"] },
-      { to: "/reportes", label: "Reportes", icon: BarChart3, roles: ["admin", "vet"] }
+      { to: "/ventas", label: "Ventas (POS)", icon: ShoppingCart, roles: COMMERCIAL },
+      { to: "/facturacion", label: "Facturación", icon: Receipt, roles: COMMERCIAL },
+      { to: "/productos", label: "Productos", icon: Package, roles: COMMERCIAL },
+      { to: "/inventario", label: "Inventario", icon: Boxes, roles: COMMERCIAL },
+      { to: "/compras", label: "Compras", icon: Truck, roles: COMMERCIAL },
+      { to: "/caja", label: "Caja", icon: Wallet, roles: COMMERCIAL },
+      { to: "/reportes", label: "Reportes", icon: BarChart3, roles: COMMERCIAL }
     ]
   },
   {
@@ -94,7 +100,7 @@ function navLinkClass({ isActive }: { isActive: boolean }): string {
 // Shell de la aplicación (sidebar + topbar) para las rutas internas protegidas.
 export default function AppLayoutInterface() {
   const { pathname } = useLocation();
-  const { user, role, hasRole, logout } = useSession();
+  const { user, roles, hasRole, logout } = useSession();
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -133,8 +139,8 @@ export default function AppLayoutInterface() {
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-line px-4">
-          <LogoInterface />
+        <div className="flex h-24 items-center justify-between border-b border-line px-4">
+          <LogoInterface className="max-h-60" />
           <button
             type="button"
             aria-label="Cerrar menú"
@@ -167,7 +173,7 @@ export default function AppLayoutInterface() {
 
       {/* Columna principal */}
       <div className="flex min-h-screen flex-col lg:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-surface/80 px-4 backdrop-blur">
+        <header className="sticky top-0 z-20 flex h-24 items-center gap-3 border-b border-line bg-surface/80 px-4 backdrop-blur">
           <button
             type="button"
             aria-label="Abrir menú"
@@ -185,7 +191,7 @@ export default function AppLayoutInterface() {
                   {user.displayName || user.email}
                 </p>
                 <p className="text-xs leading-tight text-ink-soft">
-                  {role ? ROLE_LABELS[role] : ""}
+                  {roles.map((r) => ROLE_LABELS[r]).join(" · ")}
                 </p>
               </div>
               <button
@@ -205,7 +211,10 @@ export default function AppLayoutInterface() {
           <ErrorBoundaryInterface>
             {/* key por ruta: el contenido entra con un fade sutil al navegar */}
             <div key={pathname} className="mx-auto max-w-6xl animate-fade-in">
-              <Outlet />
+              {/* Suspense interno: al navegar, sólo el contenido muestra el loader; el shell persiste */}
+              <Suspense fallback={<LoadingInterface />}>
+                <Outlet />
+              </Suspense>
             </div>
           </ErrorBoundaryInterface>
         </main>

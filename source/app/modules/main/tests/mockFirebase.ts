@@ -1,15 +1,16 @@
 import { vi } from "vitest";
 
 // Mock compartido del SDK de Firebase para tests (los services usan el SDK, no Axios).
+// (Los archivos se suben a Cloudinary vía axios, no a Firebase Storage: para esos tests
+// usá mockAxios.) Los nombres empiezan con "mock" para poder referenciarlos en vi.mock.
 //
 // Uso en un archivo de test:
 //   import { mockFirebase } from "@app/modules/main/tests/mockFirebase";
 //   vi.mock("firebase/auth", () => mockFirebase.auth);
 //   vi.mock("firebase/firestore", () => mockFirebase.firestore);
-//   vi.mock("firebase/storage", () => mockFirebase.storage);
 //
 //   beforeEach(() => { vi.clearAllMocks(); });
-export const mockFirebase = vi.hoisted(() => ({
+export const mockFirebase = {
   app: {
     initializeApp: vi.fn(() => ({})),
     getApps: vi.fn(() => []),
@@ -44,13 +45,5 @@ export const mockFirebase = vi.hoisted(() => ({
     startAfter: vi.fn(),
     onSnapshot: vi.fn(() => vi.fn()),
     serverTimestamp: vi.fn(() => ({}))
-  },
-  storage: {
-    getStorage: vi.fn(() => ({})),
-    ref: vi.fn(),
-    uploadBytes: vi.fn(),
-    uploadBytesResumable: vi.fn(),
-    getDownloadURL: vi.fn(),
-    deleteObject: vi.fn()
   }
-}));
+};

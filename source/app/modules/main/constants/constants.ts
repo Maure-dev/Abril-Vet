@@ -3,8 +3,8 @@ import type { MainDataType, UserRoleType } from "@app/modules/main/entities/enti
 // Clave de persistencia del tema (claro/oscuro) en localStorage.
 export const THEME_STORAGE_KEY = "abril_vet_theme_v1";
 
-// Rol por defecto cuando el token no trae un custom claim de rol válido (mínimo privilegio).
-export const DEFAULT_ROLE: UserRoleType = "assistant";
+// Roles por defecto cuando el token no trae un custom claim de roles válido (mínimo privilegio).
+export const DEFAULT_ROLES: UserRoleType[] = ["assistant"];
 
 // Etiquetas de rol en español para la UI.
 export const ROLE_LABELS: Record<UserRoleType, string> = {
