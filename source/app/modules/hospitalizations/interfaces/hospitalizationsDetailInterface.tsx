@@ -5,6 +5,7 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 
@@ -58,9 +59,10 @@ export default function HospitalizationsDetailInterface({
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(hospitalization)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(hospitalization)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(hospitalization)}
+            message="¿Seguro que querés eliminar esta internación? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

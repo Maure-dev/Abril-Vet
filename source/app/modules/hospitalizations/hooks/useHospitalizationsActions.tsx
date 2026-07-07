@@ -1,7 +1,9 @@
-import { EMPTY_FORM } from "@app/modules/hospitalizations/constants/constants";
+import { EMPTY_FORM, STATUS_LABELS } from "@app/modules/hospitalizations/constants/constants";
 import type {
   HospitalizationFormType,
+  HospitalizationPrefillType,
   HospitalizationStatusFilterType,
+  HospitalizationStatusType,
   HospitalizationType
 } from "@app/modules/hospitalizations/entities/entities";
 import {
@@ -42,6 +44,26 @@ export const useHospitalizationsActions = () => {
     setHospitalizationsState((s) => ({ ...s, statusFilter: statusFilter }));
   };
 
+  // Cambia sólo el estado de una internación (combo en la lista), sin editar.
+  const handleQuickStatus = async (
+    hospitalization: HospitalizationType,
+    status: HospitalizationStatusType
+  ): Promise<void> => {
+    if (hospitalization.status === status) {
+      return;
+    }
+    try {
+      await updateHospitalization(
+        hospitalization.id,
+        toHospitalizationInput({ ...formFromHospitalization(hospitalization), status: status })
+      );
+      onNotification(true, `Internación: ${STATUS_LABELS[status]}.`);
+      await handleLoad();
+    } catch {
+      onNotification(false, "No se pudo cambiar el estado de la internación.");
+    }
+  };
+
   // Abre el formulario de alta.
   const handleOpenCreate = (): void => {
     setHospitalizationsState((s) => ({
@@ -50,6 +72,22 @@ export const useHospitalizationsActions = () => {
       selected: null,
       form: EMPTY_FORM,
       errors: {}
+    }));
+  };
+
+  // Abre el formulario de alta precargado (p. ej. "Registrar atención" desde un turno).
+  // Sólo se mapean los campos que existen en este módulo (no hay vetId acá).
+  const handleOpenCreatePrefilled = (prefill: HospitalizationPrefillType): void => {
+    setHospitalizationsState((s) => ({
+      ...s,
+      mode: "create",
+      selected: null,
+      errors: {},
+      form: {
+        ...EMPTY_FORM,
+        patientId: prefill.patientId ?? EMPTY_FORM.patientId,
+        admissionDate: prefill.date ?? EMPTY_FORM.admissionDate
+      }
     }));
   };
 
@@ -102,8 +140,14 @@ export const useHospitalizationsActions = () => {
         await createHospitalization(toHospitalizationInput(form));
         onNotification(true, "Internación creada.");
       }
-      setHospitalizationsState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setHospitalizationsState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar la internación. Probá de nuevo.");
       setHospitalizationsState((s) => ({ ...s, saving: false }));
@@ -126,7 +170,9 @@ export const useHospitalizationsActions = () => {
     handleLoad,
     handleSearch,
     handleFilterStatus,
+    handleQuickStatus,
     handleOpenCreate,
+    handleOpenCreatePrefilled,
     handleOpenEdit,
     handleOpenDetail,
     handleCancel,

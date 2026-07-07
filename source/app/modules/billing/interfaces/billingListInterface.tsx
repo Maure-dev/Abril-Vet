@@ -6,12 +6,12 @@ import type {
 } from "@app/modules/billing/entities/entities";
 import { formatMoney } from "@app/modules/billing/helpers/formatMoney";
 import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
-import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Pencil, Receipt } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
+import StatusSelectInterface from "@app/modules/main/interfaces/statusSelectInterface";
 
 type Props = {
   items: InvoiceType[];
@@ -22,16 +22,14 @@ type Props = {
   onOpenCreate: () => void;
   onOpenDetail: (invoice: InvoiceType) => void;
   onOpenEdit: (invoice: InvoiceType) => void;
+  onQuickStatus: (invoice: InvoiceType, status: InvoiceStatusType) => void;
 };
 
 const STATUS_OPTIONS = Object.keys(INVOICE_STATUS_LABELS) as InvoiceStatusType[];
-
-// Tono de la pastilla según el estado de pago.
-const STATUS_TONE: Record<InvoiceStatusType, "success" | "warning" | "neutral"> = {
-  paid: "success",
-  partial: "warning",
-  pending: "neutral"
-};
+const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((status) => ({
+  value: status,
+  label: INVOICE_STATUS_LABELS[status]
+}));
 
 export default function BillingListInterface({
   items,
@@ -41,7 +39,8 @@ export default function BillingListInterface({
   onFilterStatus,
   onOpenCreate,
   onOpenDetail,
-  onOpenEdit
+  onOpenEdit,
+  onQuickStatus
 }: Props) {
   const { getLabel } = useEntityLookup("clients");
 
@@ -108,9 +107,12 @@ export default function BillingListInterface({
                   </td>
                   <td className="px-4 py-3 font-medium text-ink">{formatMoney(invoice.total)}</td>
                   <td className="px-4 py-3">
-                    <BadgeInterface tone={STATUS_TONE[invoice.status]}>
-                      {INVOICE_STATUS_LABELS[invoice.status]}
-                    </BadgeInterface>
+                    <StatusSelectInterface
+                      value={invoice.status}
+                      options={STATUS_SELECT_OPTIONS}
+                      onChange={(value) => onQuickStatus(invoice, value as InvoiceStatusType)}
+                      ariaLabel={`Cambiar estado de la factura de ${getLabel(invoice.clientId) || "cliente"}`}
+                    />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

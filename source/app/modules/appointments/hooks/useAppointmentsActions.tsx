@@ -1,7 +1,11 @@
-import { EMPTY_FORM } from "@app/modules/appointments/constants/constants";
+import {
+  APPOINTMENT_STATUS_LABELS,
+  EMPTY_FORM
+} from "@app/modules/appointments/constants/constants";
 import type {
   AppointmentFormType,
   AppointmentStatusFilterType,
+  AppointmentStatusType,
   AppointmentsViewType,
   AppointmentType,
   AppointmentTypeFilterType
@@ -48,6 +52,71 @@ export const useAppointmentsActions = () => {
 
   const handleFilterStatus = (statusFilter: AppointmentStatusFilterType): void => {
     setAppointmentsState((s) => ({ ...s, statusFilter: statusFilter }));
+  };
+
+  const handleFilterVet = (vetFilter: string): void => {
+    setAppointmentsState((s) => ({ ...s, vetFilter: vetFilter }));
+  };
+
+  // Cambia sólo el estado de un turno (combo en la lista o arrastre en el tablero), sin editar.
+  const handleQuickStatus = async (
+    appointment: AppointmentType,
+    status: AppointmentStatusType
+  ): Promise<void> => {
+    if (appointment.status === status) {
+      return;
+    }
+    try {
+      await updateAppointment(
+        appointment.id,
+        toAppointmentInput({ ...formFromAppointment(appointment), status: status })
+      );
+      onNotification(true, `Turno: ${APPOINTMENT_STATUS_LABELS[status]}.`);
+      await handleLoad();
+    } catch {
+      onNotification(false, "No se pudo cambiar el estado del turno.");
+    }
+  };
+
+  // Reasigna (o desasigna, con vetId vacío) el veterinario de un turno desde el detalle, sin abrir
+  // el formulario completo. Al asignar, verifica que el veterinario no tenga otro turno en ese horario.
+  const handleQuickVet = async (appointment: AppointmentType, vetId: string): Promise<void> => {
+    if (appointment.vetId === vetId) {
+      return;
+    }
+    // Sólo hay superposición que chequear si se asigna un veterinario (vacío = desasignar).
+    const conflict = vetId
+      ? findAppointmentConflict(
+          { vetId: vetId, date: appointment.date, durationMin: String(appointment.durationMin) },
+          getAppointmentsState.items,
+          appointment.id
+        )
+      : null;
+    if (conflict) {
+      onNotification(false, "Ese veterinario ya tiene un turno en ese horario.");
+      return;
+    }
+    try {
+      await updateAppointment(
+        appointment.id,
+        toAppointmentInput({ ...formFromAppointment(appointment), vetId: vetId })
+      );
+      onNotification(
+        true,
+        vetId ? "Veterinario reasignado." : "Se quitó el veterinario del turno."
+      );
+      await handleLoad();
+      // Mantiene abierto el detalle con el turno actualizado.
+      setAppointmentsState((s) => {
+        if (s.mode !== "detail") {
+          return s;
+        }
+        const updated = s.items.find((item) => item.id === appointment.id) ?? s.selected;
+        return { ...s, selected: updated };
+      });
+    } catch {
+      onNotification(false, "No se pudo reasignar el veterinario.");
+    }
   };
 
   // Alterna entre vista de tabla y calendario semanal.
@@ -135,6 +204,24 @@ export const useAppointmentsActions = () => {
       setAppointmentsState((s) => ({ ...s, errors: errors }));
       return;
     }
+    // No se puede agendar en el pasado. En edición sólo se controla si se movió la fecha/hora.
+    // Se compara contra el inicio del minuto actual (igual que el generador de horarios, que
+    // trunca "ahora" al minuto), para no rechazar el slot que sí se ofreció.
+    const nowMs = Date.now();
+    const chosen = new Date(form.date);
+    const movedDate = !(mode === "edit" && selected) || selected.date !== form.date;
+    if (
+      movedDate &&
+      !Number.isNaN(chosen.getTime()) &&
+      chosen.getTime() < nowMs - (nowMs % 60000)
+    ) {
+      onNotification(false, "No se puede agendar un turno en el pasado.");
+      setAppointmentsState((s) => ({
+        ...s,
+        errors: { ...s.errors, date: "El turno no puede ser en el pasado." }
+      }));
+      return;
+    }
     // El veterinario no puede tener dos turnos en el mismo horario.
     const conflict = findAppointmentConflict(
       { vetId: form.vetId, date: form.date, durationMin: form.durationMin },
@@ -158,8 +245,14 @@ export const useAppointmentsActions = () => {
         await createAppointment(toAppointmentInput(form));
         onNotification(true, "Turno creado.");
       }
-      setAppointmentsState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setAppointmentsState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar el turno. Probá de nuevo.");
       setAppointmentsState((s) => ({ ...s, saving: false }));
@@ -206,6 +299,9 @@ export const useAppointmentsActions = () => {
     handleSubmit,
     handleDelete,
     handleCancelAppointment,
+    handleQuickStatus,
+    handleQuickVet,
+    handleFilterVet,
     handleSetView,
     handlePrevWeek,
     handleNextWeek,

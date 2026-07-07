@@ -1,13 +1,18 @@
 import { isFirebaseConfigured } from "@app/modules/main/services/firebase";
 import { db } from "@app/modules/main/services/firestore";
 import { METRIC_COLLECTIONS } from "@app/modules/reports/constants/constants";
-import type { MetricKeyType, ReportMetricInputType } from "@app/modules/reports/entities/entities";
+import type {
+  MetricKeyType,
+  ReportMetricInputType,
+  SaleForReportType
+} from "@app/modules/reports/entities/entities";
 import {
   addDoc,
   collection,
   deleteDoc,
   doc,
   getCountFromServer,
+  getDocs,
   serverTimestamp,
   updateDoc
 } from "firebase/firestore";
@@ -29,6 +34,16 @@ export async function fetchMetricCount(key: MetricKeyType): Promise<number> {
   const database = requireDb();
   const snapshot = await getCountFromServer(collection(database, METRIC_COLLECTIONS[key]));
   return snapshot.data().count;
+}
+
+// Trae las ventas (fecha + total) para el gráfico de facturación por mes.
+export async function fetchSalesForReports(): Promise<SaleForReportType[]> {
+  const database = requireDb();
+  const snapshot = await getDocs(collection(database, "sales"));
+  return snapshot.docs.map((snap) => {
+    const data = snap.data() as { date?: string; total?: number };
+    return { date: data.date ?? "", total: typeof data.total === "number" ? data.total : 0 };
+  });
 }
 
 // Crea un reporte guardado y devuelve su id (forma CRUD de la plantilla).

@@ -16,6 +16,7 @@ export function buildSurgery(overrides: Partial<SurgeryType> = {}): SurgeryType 
     evolution: "",
     status: "scheduled",
     notes: "",
+    attachments: [],
     ...overrides
   };
 }

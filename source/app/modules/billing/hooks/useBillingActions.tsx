@@ -1,8 +1,13 @@
-import { EMPTY_FORM, EMPTY_ITEM } from "@app/modules/billing/constants/constants";
+import {
+  EMPTY_FORM,
+  EMPTY_ITEM,
+  INVOICE_STATUS_LABELS
+} from "@app/modules/billing/constants/constants";
 import type {
   BillingFormType,
   InvoiceItemFormType,
   InvoiceStatusFilterType,
+  InvoiceStatusType,
   InvoiceType
 } from "@app/modules/billing/entities/entities";
 import { formFromInvoice, toInvoiceInput } from "@app/modules/billing/helpers/invoiceMappers";
@@ -38,6 +43,26 @@ export const useBillingActions = () => {
 
   const handleFilterStatus = (statusFilter: InvoiceStatusFilterType): void => {
     setBillingState((s) => ({ ...s, statusFilter: statusFilter }));
+  };
+
+  // Cambia sólo el estado de una factura (combo en la lista), sin editar.
+  const handleQuickStatus = async (
+    invoice: InvoiceType,
+    status: InvoiceStatusType
+  ): Promise<void> => {
+    if (invoice.status === status) {
+      return;
+    }
+    try {
+      await updateInvoice(
+        invoice.id,
+        toInvoiceInput({ ...formFromInvoice(invoice), status: status })
+      );
+      onNotification(true, `Factura: ${INVOICE_STATUS_LABELS[status]}.`);
+      await handleLoad();
+    } catch {
+      onNotification(false, "No se pudo cambiar el estado de la factura.");
+    }
   };
 
   // Abre el formulario de alta.
@@ -135,8 +160,14 @@ export const useBillingActions = () => {
         await createInvoice(toInvoiceInput(form));
         onNotification(true, "Factura creada.");
       }
-      setBillingState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setBillingState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar la factura. Probá de nuevo.");
       setBillingState((s) => ({ ...s, saving: false }));
@@ -159,6 +190,7 @@ export const useBillingActions = () => {
     handleLoad,
     handleSearch,
     handleFilterStatus,
+    handleQuickStatus,
     handleOpenCreate,
     handleOpenEdit,
     handleOpenDetail,

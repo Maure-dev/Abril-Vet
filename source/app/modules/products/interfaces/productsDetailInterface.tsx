@@ -1,6 +1,8 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { CATEGORY_LABELS } from "@app/modules/products/constants/constants";
 import type { ProductType } from "@app/modules/products/entities/entities";
@@ -24,6 +26,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default function ProductsDetailInterface({ product, onEdit, onDelete, onBack }: Props) {
+  const { getLabel: getSupplierLabel } = useEntityLookup("suppliers");
   const margin = computeMargin(product.costPrice, product.salePrice);
   const lowStock = isLowStock(product.stock, product.minStock);
 
@@ -42,9 +45,10 @@ export default function ProductsDetailInterface({ product, onEdit, onDelete, onB
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(product)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(product)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(product)}
+            message="¿Seguro que querés eliminar este producto? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 
@@ -75,7 +79,7 @@ export default function ProductsDetailInterface({ product, onEdit, onDelete, onB
           <Row label="Código" value={product.code} />
           <Row label="Código de barras" value={product.barcode} />
           <Row label="Marca" value={product.brand} />
-          <Row label="Proveedor (ID)" value={product.supplierId} />
+          <Row label="Proveedor" value={getSupplierLabel(product.supplierId)} />
         </dl>
       </CardInterface>
 

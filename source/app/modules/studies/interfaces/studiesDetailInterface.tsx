@@ -2,6 +2,7 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft, Paperclip } from "@app/modules/main/interfaces/icons";
 import { STUDY_STATUS_LABELS, STUDY_TYPE_LABELS } from "@app/modules/studies/constants/constants";
@@ -31,6 +32,7 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default function StudiesDetailInterface({ study, onEdit, onDelete, onBack }: Props) {
   const { getLabel } = useEntityLookup("patients");
+  const { getLabel: getVetLabel } = useEntityLookup("vets");
   const patientLabel = getLabel(study.patientId);
 
   return (
@@ -49,9 +51,10 @@ export default function StudiesDetailInterface({ study, onEdit, onDelete, onBack
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(study)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(study)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(study)}
+            message="¿Seguro que querés eliminar este estudio? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 
@@ -67,7 +70,7 @@ export default function StudiesDetailInterface({ study, onEdit, onDelete, onBack
           <Row label="Tipo" value={STUDY_TYPE_LABELS[study.type]} />
           <Row label="Estado" value={STUDY_STATUS_LABELS[study.status]} />
           <Row label="Fecha" value={study.date ?? ""} />
-          <Row label="Solicitado por" value={study.requestedBy} />
+          <Row label="Solicitado por" value={getVetLabel(study.requestedBy)} />
         </dl>
       </CardInterface>
 

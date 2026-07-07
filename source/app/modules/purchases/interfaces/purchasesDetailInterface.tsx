@@ -2,6 +2,7 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { STATUS_LABELS } from "@app/modules/purchases/constants/constants";
 import type {
@@ -34,6 +35,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default function PurchasesDetailInterface({ purchase, onEdit, onDelete, onBack }: Props) {
+  const { getLabel: getSupplierLabel } = useEntityLookup("suppliers");
   const { getLabel: getProductLabel } = useEntityLookup("products");
 
   return (
@@ -53,16 +55,20 @@ export default function PurchasesDetailInterface({ purchase, onEdit, onDelete, o
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(purchase)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(purchase)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(purchase)}
+            message="¿Seguro que querés eliminar esta compra? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 
       <CardInterface>
         <h3 className="mb-4 font-display text-base text-brand-fg">Datos de la compra</h3>
         <dl className="grid gap-4 sm:grid-cols-3">
-          <Row label="Proveedor" value={purchase.supplierId} />
+          <Row
+            label="Proveedor"
+            value={getSupplierLabel(purchase.supplierId) || purchase.supplierId}
+          />
           <Row label="Fecha" value={purchase.date} />
           <Row label="N° de factura" value={purchase.invoiceNumber} />
           <Row label="Estado" value={STATUS_LABELS[purchase.status]} />

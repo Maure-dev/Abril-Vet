@@ -1,6 +1,10 @@
 import { isFirebaseConfigured } from "@app/modules/main/services/firebase";
 import { db } from "@app/modules/main/services/firestore";
-import type { PatientInputType, PatientType } from "@app/modules/patients/entities/entities";
+import type {
+  PatientHistoryItemType,
+  PatientInputType,
+  PatientType
+} from "@app/modules/patients/entities/entities";
 import {
   addDoc,
   collection,
@@ -10,7 +14,8 @@ import {
   orderBy,
   query,
   serverTimestamp,
-  updateDoc
+  updateDoc,
+  where
 } from "firebase/firestore";
 
 const COLLECTION = "patients";
@@ -57,4 +62,89 @@ export async function updatePatient(id: string, input: PatientInputType): Promis
 export async function deletePatient(id: string): Promise<void> {
   const database = requireDb();
   await deleteDoc(doc(database, COLLECTION, id));
+}
+
+// Fuentes clínicas que se agregan en la historia unificada del paciente.
+const HISTORY_SOURCES = [
+  {
+    coll: "medicalRecords",
+    kind: "medicalRecord",
+    kindLabel: "Consulta",
+    route: "/historia-clinica",
+    dateField: "date",
+    titleFields: ["reason", "diagnosis"]
+  },
+  {
+    coll: "vaccinations",
+    kind: "vaccination",
+    kindLabel: "Vacuna",
+    route: "/vacunacion",
+    dateField: "date",
+    titleFields: ["vaccineName"]
+  },
+  {
+    coll: "dewormings",
+    kind: "deworming",
+    kindLabel: "Desparasitación",
+    route: "/desparasitaciones",
+    dateField: "date",
+    titleFields: ["productName"]
+  },
+  {
+    coll: "studies",
+    kind: "study",
+    kindLabel: "Estudio",
+    route: "/estudios",
+    dateField: "date",
+    titleFields: ["name"]
+  },
+  {
+    coll: "surgeries",
+    kind: "surgery",
+    kindLabel: "Cirugía",
+    route: "/cirugias",
+    dateField: "date",
+    titleFields: ["type"]
+  },
+  {
+    coll: "hospitalizations",
+    kind: "hospitalization",
+    kindLabel: "Internación",
+    route: "/internaciones",
+    dateField: "admissionDate",
+    titleFields: ["reason"]
+  }
+] as const;
+
+// Historia clínica unificada del paciente: junta los registros clínicos de todas las colecciones
+// (por patientId) en un solo timeline ordenado por fecha descendente. Sólo lo consumen roles con
+// acceso clínico (las reglas de Firestore deniegan estas colecciones a recepción).
+export async function fetchPatientHistory(patientId: string): Promise<PatientHistoryItemType[]> {
+  const database = requireDb();
+  if (!patientId) {
+    return [];
+  }
+  const groups = await Promise.all(
+    HISTORY_SOURCES.map(async (source) => {
+      const snapshot = await getDocs(
+        query(collection(database, source.coll), where("patientId", "==", patientId))
+      );
+      return snapshot.docs.map((snap) => {
+        const data = snap.data() as Record<string, unknown>;
+        const title =
+          source.titleFields
+            .map((field) => String(data[field] ?? ""))
+            .find((value) => value.length > 0) ?? source.kindLabel;
+        return {
+          kind: source.kind,
+          kindLabel: source.kindLabel,
+          id: snap.id,
+          date: String(data[source.dateField] ?? ""),
+          title: title,
+          route: source.route
+        } satisfies PatientHistoryItemType;
+      });
+    })
+  );
+  return groups.flat().sort((a, b) => b.date.localeCompare(a.date));
 }

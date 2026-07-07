@@ -53,6 +53,26 @@ export const useVaccinationsActions = () => {
     }));
   };
 
+  // Abre el alta con campos precargados (p.ej. al registrar la atención desde un turno).
+  const handleOpenCreatePrefilled = (prefill: {
+    patientId?: string;
+    vetId?: string;
+    date?: string;
+  }): void => {
+    setVaccinationsState((s) => ({
+      ...s,
+      mode: "create",
+      selected: null,
+      errors: {},
+      form: {
+        ...EMPTY_FORM,
+        patientId: prefill.patientId ?? EMPTY_FORM.patientId,
+        vetId: prefill.vetId ?? EMPTY_FORM.vetId,
+        date: prefill.date ?? EMPTY_FORM.date
+      }
+    }));
+  };
+
   // Abre el formulario de edición cargado con la vacunación.
   const handleOpenEdit = (vaccination: VaccinationType): void => {
     setVaccinationsState((s) => ({
@@ -102,8 +122,14 @@ export const useVaccinationsActions = () => {
         await createVaccination(toVaccinationInput(form));
         onNotification(true, "Vacunación registrada.");
       }
-      setVaccinationsState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setVaccinationsState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar la vacunación. Probá de nuevo.");
       setVaccinationsState((s) => ({ ...s, saving: false }));
@@ -127,6 +153,7 @@ export const useVaccinationsActions = () => {
     handleSearch,
     handleFilterStatus,
     handleOpenCreate,
+    handleOpenCreatePrefilled,
     handleOpenEdit,
     handleOpenDetail,
     handleCancel,

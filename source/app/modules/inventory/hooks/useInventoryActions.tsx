@@ -99,8 +99,14 @@ export const useInventoryActions = () => {
         await createStockMovement(toMovementInput(form));
         onNotification(true, "Movimiento creado.");
       }
-      setInventoryState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setInventoryState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar el movimiento. Probá de nuevo.");
       setInventoryState((s) => ({ ...s, saving: false }));

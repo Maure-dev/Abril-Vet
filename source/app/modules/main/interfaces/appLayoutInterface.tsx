@@ -5,21 +5,17 @@ import { useSession } from "@app/modules/main/hooks/useSession";
 import type { LucideIcon } from "@app/modules/main/interfaces/icons";
 import {
   BarChart3,
-  Bed,
   Bell,
   Boxes,
+  Building2,
   Calendar,
-  FlaskConical,
   LayoutDashboard,
   LogOut,
   Menu,
   Package,
   PawPrint,
   Receipt,
-  Scissors,
   ShoppingCart,
-  Stethoscope,
-  Syringe,
   Truck,
   UserCog,
   Users,
@@ -29,6 +25,7 @@ import {
 import { Suspense, useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
 import ErrorBoundaryInterface from "./errorBoundaryInterface";
+import GlobalSearchInterface from "./globalSearchInterface";
 import IconInterface from "./iconInterface";
 import LoadingInterface from "./loadingInterface";
 import LogoInterface from "./logoInterface";
@@ -63,12 +60,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/clientes", label: "Clientes", icon: Users },
       { to: "/pacientes", label: "Pacientes", icon: PawPrint },
       { to: "/agenda", label: "Agenda", icon: Calendar },
-      { to: "/historia-clinica", label: "Historia clínica", icon: Stethoscope, roles: CLINICAL },
-      { to: "/vacunacion", label: "Vacunación", icon: Syringe, roles: CLINICAL },
-      { to: "/recordatorios", label: "Recordatorios", icon: Bell, roles: CLINICAL },
-      { to: "/estudios", label: "Estudios", icon: FlaskConical, roles: CLINICAL },
-      { to: "/cirugias", label: "Cirugías", icon: Scissors, roles: CLINICAL },
-      { to: "/internaciones", label: "Internaciones", icon: Bed, roles: CLINICAL }
+      { to: "/recordatorios", label: "Recordatorios", icon: Bell, roles: CLINICAL }
     ]
   },
   {
@@ -79,6 +71,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/productos", label: "Productos", icon: Package, roles: COMMERCIAL },
       { to: "/inventario", label: "Inventario", icon: Boxes, roles: COMMERCIAL },
       { to: "/compras", label: "Compras", icon: Truck, roles: COMMERCIAL },
+      { to: "/proveedores", label: "Proveedores", icon: Building2, roles: COMMERCIAL },
       { to: "/caja", label: "Caja", icon: Wallet, roles: COMMERCIAL },
       { to: "/reportes", label: "Reportes", icon: BarChart3, roles: COMMERCIAL }
     ]
@@ -182,8 +175,11 @@ export default function AppLayoutInterface() {
           >
             <IconInterface icon={Menu} size="md" />
           </button>
-          <div className="flex-1" />
-          <ThemeToggleInterface />
+          <div className="flex flex-1 items-center">
+            <div className="hidden w-full max-w-sm sm:block">
+              <GlobalSearchInterface />
+            </div>
+          </div>
           {user ? (
             <div className="flex items-center gap-3">
               <div className="hidden text-right sm:block">
@@ -194,6 +190,7 @@ export default function AppLayoutInterface() {
                   {roles.map((r) => ROLE_LABELS[r]).join(" · ")}
                 </p>
               </div>
+              <ThemeToggleInterface />
               <button
                 type="button"
                 onClick={handleLogout}

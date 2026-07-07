@@ -2,6 +2,7 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { ITEM_KIND_LABELS, PAYMENT_METHOD_LABELS } from "@app/modules/sales/constants/constants";
@@ -39,9 +40,10 @@ export default function SalesDetailInterface({ sale, onEdit, onDelete, onBack }:
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(sale)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(sale)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(sale)}
+            message="¿Seguro que querés eliminar esta venta? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

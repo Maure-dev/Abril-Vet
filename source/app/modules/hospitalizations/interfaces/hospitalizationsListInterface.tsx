@@ -6,12 +6,12 @@ import type {
 } from "@app/modules/hospitalizations/entities/entities";
 import { computeStayDays } from "@app/modules/hospitalizations/helpers/computeStayDays";
 import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
-import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Bed, Pencil, Plus } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
+import StatusSelectInterface from "@app/modules/main/interfaces/statusSelectInterface";
 
 type Props = {
   items: HospitalizationType[];
@@ -22,9 +22,14 @@ type Props = {
   onOpenCreate: () => void;
   onOpenDetail: (hospitalization: HospitalizationType) => void;
   onOpenEdit: (hospitalization: HospitalizationType) => void;
+  onQuickStatus: (hospitalization: HospitalizationType, status: HospitalizationStatusType) => void;
 };
 
 const STATUS_OPTIONS = Object.keys(STATUS_LABELS) as HospitalizationStatusType[];
+const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((status) => ({
+  value: status,
+  label: STATUS_LABELS[status]
+}));
 
 export default function HospitalizationsListInterface({
   items,
@@ -34,7 +39,8 @@ export default function HospitalizationsListInterface({
   onFilterStatus,
   onOpenCreate,
   onOpenDetail,
-  onOpenEdit
+  onOpenEdit,
+  onQuickStatus
 }: Props) {
   const { getLabel } = useEntityLookup("patients");
 
@@ -112,9 +118,14 @@ export default function HospitalizationsListInterface({
                   </td>
                   <td className="px-4 py-3 text-ink-soft">{hospitalization.reason || "—"}</td>
                   <td className="px-4 py-3">
-                    <BadgeInterface tone={hospitalization.status === "active" ? "info" : "success"}>
-                      {STATUS_LABELS[hospitalization.status]}
-                    </BadgeInterface>
+                    <StatusSelectInterface
+                      value={hospitalization.status}
+                      options={STATUS_SELECT_OPTIONS}
+                      onChange={(value) =>
+                        onQuickStatus(hospitalization, value as HospitalizationStatusType)
+                      }
+                      ariaLabel={`Cambiar estado de la internación de ${getLabel(hospitalization.patientId) || "paciente"}`}
+                    />
                   </td>
                   <td className="px-4 py-3 text-ink-soft">
                     {computeStayDays(hospitalization.admissionDate, hospitalization.dischargeDate)}

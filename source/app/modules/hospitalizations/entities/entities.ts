@@ -45,6 +45,13 @@ export type HospitalizationFormType = {
 
 export type HospitalizationFormErrorsType = Partial<Record<keyof HospitalizationFormType, string>>;
 
+// Precarga del alta desde un turno ("Registrar atención"): campos que llegan por query params.
+export type HospitalizationPrefillType = {
+  patientId?: string;
+  vetId?: string;
+  date?: string;
+};
+
 // ── Estado y contexto del módulo ──
 export type HospitalizationsDataType = {
   items: HospitalizationType[];

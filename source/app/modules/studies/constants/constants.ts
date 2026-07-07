@@ -29,7 +29,8 @@ export const EMPTY_FORM: StudyFormType = {
   date: "",
   requestedBy: "",
   result: "",
-  status: "requested"
+  status: "requested",
+  attachments: []
 };
 
 export const INITIAL_STATE = {

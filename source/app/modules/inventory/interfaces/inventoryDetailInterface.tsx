@@ -5,6 +5,7 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 
 type Props = {
@@ -58,9 +59,10 @@ export default function InventoryDetailInterface({ movement, onEdit, onDelete, o
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(movement)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(movement)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(movement)}
+            message="¿Seguro que querés eliminar este movimiento de stock? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

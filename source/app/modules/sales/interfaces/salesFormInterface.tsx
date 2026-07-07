@@ -3,6 +3,7 @@ import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
 import EntitySelectInterface from "@app/modules/main/interfaces/entitySelectInterface";
 import FieldInterface from "@app/modules/main/interfaces/fieldInterface";
+import FormActionsInterface from "@app/modules/main/interfaces/formActionsInterface";
 import { Plus, Trash2 } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
 import { ITEM_KIND_LABELS, PAYMENT_METHOD_LABELS } from "@app/modules/sales/constants/constants";
@@ -49,13 +50,7 @@ export default function SalesFormInterface({
   const { options: clientOptions, loading: clientsLoading } = useEntityOptions("clients");
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      className="flex flex-col gap-5"
-    >
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-5">
       <div className="grid gap-4 sm:grid-cols-3">
         <EntitySelectInterface
           label="Cliente"
@@ -214,14 +209,12 @@ export default function SalesFormInterface({
         </dl>
       </div>
 
-      <div className="flex items-center gap-3">
-        <ButtonInterface type="submit" variant="success" loading={saving}>
-          {isEdit ? "Guardar cambios" : "Registrar venta"}
-        </ButtonInterface>
-        <ButtonInterface type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </ButtonInterface>
-      </div>
+      <FormActionsInterface
+        submitLabel={isEdit ? "Guardar cambios" : "Registrar venta"}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        saving={saving}
+      />
     </form>
   );
 }

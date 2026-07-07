@@ -9,6 +9,7 @@ import { validateClientForm } from "@app/modules/clients/helpers/validateClientF
 import {
   createClient,
   deleteClient,
+  fetchClientAccount,
   fetchClients,
   updateClient
 } from "@app/modules/clients/services/services";
@@ -61,14 +62,26 @@ export const useClientsActions = () => {
     }));
   };
 
-  // Abre la ficha (detalle) del cliente.
+  // Abre la ficha (detalle) del cliente. Limpia el estado de cuenta anterior (el detalle lo recarga).
   const handleOpenDetail = (client: ClientType): void => {
-    setClientsState((s) => ({ ...s, mode: "detail", selected: client }));
+    setClientsState((s) => ({ ...s, mode: "detail", selected: client, account: null }));
+  };
+
+  // Carga el estado de cuenta del cliente (ventas/facturas sólo si includeFinancial).
+  const handleLoadAccount = async (clientId: string, includeFinancial: boolean): Promise<void> => {
+    setClientsState((s) => ({ ...s, accountLoading: true }));
+    try {
+      const account = await fetchClientAccount(clientId, includeFinancial);
+      setClientsState((s) => ({ ...s, account: account, accountLoading: false }));
+    } catch {
+      onNotification(false, "No se pudo cargar el estado de cuenta del cliente.");
+      setClientsState((s) => ({ ...s, accountLoading: false }));
+    }
   };
 
   // Vuelve a la lista.
   const handleCancel = (): void => {
-    setClientsState((s) => ({ ...s, mode: "list", selected: null, errors: {} }));
+    setClientsState((s) => ({ ...s, mode: "list", selected: null, errors: {}, account: null }));
   };
 
   const handleChangeField = <K extends keyof ClientFormType>(
@@ -99,8 +112,14 @@ export const useClientsActions = () => {
         await createClient(toClientInput(form));
         onNotification(true, "Cliente creado.");
       }
-      setClientsState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setClientsState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar el cliente. Probá de nuevo.");
       setClientsState((s) => ({ ...s, saving: false }));
@@ -126,6 +145,7 @@ export const useClientsActions = () => {
     handleOpenCreate,
     handleOpenEdit,
     handleOpenDetail,
+    handleLoadAccount,
     handleCancel,
     handleChangeField,
     handleSubmit,

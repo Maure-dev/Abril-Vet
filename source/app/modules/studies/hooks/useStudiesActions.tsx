@@ -1,8 +1,10 @@
 import { useNotification } from "@app/modules/main/hooks/useNotification";
-import { EMPTY_FORM } from "@app/modules/studies/constants/constants";
+import { EMPTY_FORM, STUDY_STATUS_LABELS } from "@app/modules/studies/constants/constants";
 import type {
   StudyFormType,
+  StudyPrefillType,
   StudyStatusFilterType,
+  StudyStatusType,
   StudyType,
   StudyTypeFilterType
 } from "@app/modules/studies/entities/entities";
@@ -44,6 +46,20 @@ export const useStudiesActions = () => {
     setStudiesState((s) => ({ ...s, statusFilter: statusFilter }));
   };
 
+  // Cambia sólo el estado de un estudio (combo en la lista), sin entrar a editar.
+  const handleQuickStatus = async (study: StudyType, status: StudyStatusType): Promise<void> => {
+    if (study.status === status) {
+      return;
+    }
+    try {
+      await updateStudy(study.id, toStudyInput({ ...formFromStudy(study), status: status }));
+      onNotification(true, `Estudio: ${STUDY_STATUS_LABELS[status]}.`);
+      await handleLoad();
+    } catch {
+      onNotification(false, "No se pudo cambiar el estado del estudio.");
+    }
+  };
+
   // Abre el formulario de alta.
   const handleOpenCreate = (): void => {
     setStudiesState((s) => ({
@@ -52,6 +68,23 @@ export const useStudiesActions = () => {
       selected: null,
       form: EMPTY_FORM,
       errors: {}
+    }));
+  };
+
+  // Abre el alta con el formulario precargado (deep-link desde un turno). En estudios el
+  // veterinario del turno queda como "solicitado por" (requestedBy).
+  const handleOpenCreatePrefilled = (prefill: StudyPrefillType): void => {
+    setStudiesState((s) => ({
+      ...s,
+      mode: "create",
+      selected: null,
+      errors: {},
+      form: {
+        ...EMPTY_FORM,
+        patientId: prefill.patientId ?? EMPTY_FORM.patientId,
+        requestedBy: prefill.vetId ?? EMPTY_FORM.requestedBy,
+        date: prefill.date ?? EMPTY_FORM.date
+      }
     }));
   };
 
@@ -98,14 +131,20 @@ export const useStudiesActions = () => {
     setStudiesState((s) => ({ ...s, saving: true }));
     try {
       if (mode === "edit" && selected) {
-        await updateStudy(selected.id, toStudyInput(form, { attachments: selected.attachments }));
+        await updateStudy(selected.id, toStudyInput(form));
         onNotification(true, "Estudio actualizado.");
       } else {
         await createStudy(toStudyInput(form));
         onNotification(true, "Estudio creado.");
       }
-      setStudiesState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setStudiesState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar el estudio. Probá de nuevo.");
       setStudiesState((s) => ({ ...s, saving: false }));
@@ -129,7 +168,9 @@ export const useStudiesActions = () => {
     handleSearch,
     handleFilterType,
     handleFilterStatus,
+    handleQuickStatus,
     handleOpenCreate,
+    handleOpenCreatePrefilled,
     handleOpenEdit,
     handleOpenDetail,
     handleCancel,

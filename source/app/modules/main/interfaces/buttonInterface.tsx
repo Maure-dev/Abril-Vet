@@ -33,7 +33,7 @@ const SIZE = {
 };
 
 const BASE =
-  "inline-flex items-center justify-center gap-2 rounded-buttons font-medium transition-[background-color,color,transform,box-shadow,filter] duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-buttons font-medium transition-[background-color,color,transform,box-shadow,filter] duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100";
 
 function Spinner() {
   return (

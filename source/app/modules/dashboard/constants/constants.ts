@@ -8,7 +8,6 @@ export const INITIAL_STATE = {
     weekStart: "",
     todayAppointments: [],
     upcomingAppointments: [],
-    pendingVaccinations: [],
     hospitalized: []
   } satisfies DashboardDataType
 };

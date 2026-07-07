@@ -1,8 +1,10 @@
 import { useNotification } from "@app/modules/main/hooks/useNotification";
-import { EMPTY_FORM } from "@app/modules/surgeries/constants/constants";
+import { EMPTY_FORM, SURGERY_STATUS_LABELS } from "@app/modules/surgeries/constants/constants";
 import type {
   SurgeryFormType,
+  SurgeryPrefillType,
   SurgeryStatusFilterType,
+  SurgeryStatusType,
   SurgeryType
 } from "@app/modules/surgeries/entities/entities";
 import { formFromSurgery, toSurgeryInput } from "@app/modules/surgeries/helpers/surgeryMappers";
@@ -39,6 +41,26 @@ export const useSurgeriesActions = () => {
     setSurgeriesState((s) => ({ ...s, statusFilter: statusFilter }));
   };
 
+  // Cambia sólo el estado de una cirugía (combo en la lista), sin entrar a editar.
+  const handleQuickStatus = async (
+    surgery: SurgeryType,
+    status: SurgeryStatusType
+  ): Promise<void> => {
+    if (surgery.status === status) {
+      return;
+    }
+    try {
+      await updateSurgery(
+        surgery.id,
+        toSurgeryInput({ ...formFromSurgery(surgery), status: status })
+      );
+      onNotification(true, `Cirugía: ${SURGERY_STATUS_LABELS[status]}.`);
+      await handleLoad();
+    } catch {
+      onNotification(false, "No se pudo cambiar el estado de la cirugía.");
+    }
+  };
+
   // Abre el formulario de alta.
   const handleOpenCreate = (): void => {
     setSurgeriesState((s) => ({
@@ -47,6 +69,22 @@ export const useSurgeriesActions = () => {
       selected: null,
       form: EMPTY_FORM,
       errors: {}
+    }));
+  };
+
+  // Abre el formulario de alta con campos precargados (desde un turno).
+  const handleOpenCreatePrefilled = (prefill: SurgeryPrefillType): void => {
+    setSurgeriesState((s) => ({
+      ...s,
+      mode: "create",
+      selected: null,
+      errors: {},
+      form: {
+        ...EMPTY_FORM,
+        patientId: prefill.patientId ?? EMPTY_FORM.patientId,
+        vetId: prefill.vetId ?? EMPTY_FORM.vetId,
+        date: prefill.date ?? EMPTY_FORM.date
+      }
     }));
   };
 
@@ -99,8 +137,14 @@ export const useSurgeriesActions = () => {
         await createSurgery(toSurgeryInput(form));
         onNotification(true, "Cirugía creada.");
       }
-      setSurgeriesState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setSurgeriesState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar la cirugía. Probá de nuevo.");
       setSurgeriesState((s) => ({ ...s, saving: false }));
@@ -138,7 +182,9 @@ export const useSurgeriesActions = () => {
     handleLoad,
     handleSearch,
     handleFilterStatus,
+    handleQuickStatus,
     handleOpenCreate,
+    handleOpenCreatePrefilled,
     handleOpenEdit,
     handleOpenDetail,
     handleCancel,

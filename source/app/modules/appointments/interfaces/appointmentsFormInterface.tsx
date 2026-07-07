@@ -1,18 +1,22 @@
 import {
   APPOINTMENT_STATUS_LABELS,
-  APPOINTMENT_TYPE_LABELS
+  APPOINTMENT_TYPE_LABELS,
+  DURATION_OPTIONS
 } from "@app/modules/appointments/constants/constants";
 import type {
   AppointmentFormErrorsType,
   AppointmentFormType,
   AppointmentStatusType,
+  AppointmentType,
   AppointmentTypeType
 } from "@app/modules/appointments/entities/entities";
+import { availableTimeSlots } from "@app/modules/appointments/helpers/availableTimeSlots";
+import { todayStr } from "@app/modules/main/helpers/weekDates";
 import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import { useEntityOptions } from "@app/modules/main/hooks/useEntityOptions";
-import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EntitySelectInterface from "@app/modules/main/interfaces/entitySelectInterface";
 import FieldInterface from "@app/modules/main/interfaces/fieldInterface";
+import FormActionsInterface from "@app/modules/main/interfaces/formActionsInterface";
 import {
   InputInterface,
   SelectInterface,
@@ -24,6 +28,8 @@ type Props = {
   errors: AppointmentFormErrorsType;
   saving: boolean;
   isEdit: boolean;
+  items: AppointmentType[];
+  excludeId: string;
   onChange: <K extends keyof AppointmentFormType>(field: K, value: AppointmentFormType[K]) => void;
   onSubmit: () => void;
   onCancel: () => void;
@@ -37,6 +43,8 @@ export default function AppointmentsFormInterface({
   errors,
   saving,
   isEdit,
+  items,
+  excludeId,
   onChange,
   onSubmit,
   onCancel
@@ -53,14 +61,55 @@ export default function AppointmentsFormInterface({
     onChange("clientId", option?.clientId ?? "");
   };
 
+  // La fecha y la hora se cargan por separado pero se guardan en un único campo (yyyy-mm-ddThh:mm).
+  const dateOnly = form.date.slice(0, 10);
+  const time = form.date.length >= 16 ? form.date.slice(11, 16) : "";
+  const durationNum = Number(form.durationMin);
+  const durationValid = !Number.isNaN(durationNum) && durationNum > 0;
+
+  // El combo de horario se habilita recién con fecha y duración: la duración define el largo del
+  // turno y con eso se calculan los slots libres. El veterinario es opcional (se puede agendar sin
+  // asignarlo); si hay veterinario, además se descartan los horarios que se pisan con su agenda.
+  const timeReady = durationValid && Boolean(dateOnly);
+  const slots = timeReady
+    ? availableTimeSlots({
+        date: dateOnly,
+        durationMin: durationNum,
+        vetId: form.vetId,
+        items: items,
+        excludeId: excludeId,
+        now: new Date()
+      })
+    : [];
+  // En edición, el horario ya cargado se mantiene visible aunque no aparezca entre los slots.
+  const timeOptions = time && !slots.includes(time) ? [time, ...slots] : slots;
+
+  const timeHint = !dateOnly
+    ? "Elegí primero la fecha."
+    : !durationValid
+      ? "Elegí primero la duración."
+      : slots.length === 0
+        ? "No hay horarios disponibles para ese día."
+        : form.vetId
+          ? ""
+          : "Sin veterinario asignado: no se controla la superposición de turnos.";
+
+  // El error de fecha/hora va al campo que corresponde: si ya hay fecha pero falta el horario,
+  // se muestra bajo "Horario"; si no, bajo "Fecha".
+  const missingTime = Boolean(dateOnly) && !time;
+  const dateError = missingTime ? undefined : errors.date;
+  const timeError = missingTime ? errors.date : undefined;
+
+  const handleDateChange = (value: string): void => {
+    onChange("date", value ? (time ? `${value}T${time}` : value) : "");
+  };
+
+  const handleTimeChange = (value: string): void => {
+    onChange("date", value ? `${dateOnly}T${value}` : dateOnly);
+  };
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      className="flex flex-col gap-5"
-    >
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <EntitySelectInterface
           label="Paciente"
@@ -80,30 +129,51 @@ export default function AppointmentsFormInterface({
           </div>
         </div>
         <EntitySelectInterface
-          label="Veterinario"
+          label="Veterinario (opcional)"
           value={form.vetId}
           onChange={(id) => onChange("vetId", id)}
           options={vetOptions}
           loading={vetsLoading}
           error={errors.vetId}
-          placeholder="Seleccioná el veterinario"
+          placeholder="Sin asignar"
           emptyHint="No hay veterinarios cargados. Cargá uno en Personal."
+          clearable
         />
-        <FieldInterface label="Fecha y hora" error={errors.date} required>
-          <InputInterface
-            type="datetime-local"
-            value={form.date}
-            onChange={(e) => onChange("date", e.target.value)}
-          />
-        </FieldInterface>
-        <FieldInterface label="Duración (min)" error={errors.durationMin}>
-          <InputInterface
-            type="number"
-            step="5"
-            min="0"
+        <FieldInterface label="Duración" error={errors.durationMin}>
+          <SelectInterface
             value={form.durationMin}
             onChange={(e) => onChange("durationMin", e.target.value)}
+          >
+            {DURATION_OPTIONS.map((duration) => (
+              <option key={duration} value={duration}>
+                {duration} min
+              </option>
+            ))}
+          </SelectInterface>
+        </FieldInterface>
+        <FieldInterface label="Fecha" error={dateError} required>
+          <InputInterface
+            type="date"
+            min={todayStr()}
+            value={dateOnly}
+            onChange={(e) => handleDateChange(e.target.value)}
           />
+        </FieldInterface>
+        <FieldInterface label="Horario" error={timeError} hint={timeHint} required>
+          <SelectInterface
+            value={time}
+            disabled={!timeReady || slots.length === 0}
+            onChange={(e) => handleTimeChange(e.target.value)}
+          >
+            <option value="">
+              {timeReady ? "Seleccioná el horario" : "Elegí la fecha y la duración"}
+            </option>
+            {timeOptions.map((slot) => (
+              <option key={slot} value={slot}>
+                {slot}
+              </option>
+            ))}
+          </SelectInterface>
         </FieldInterface>
         <FieldInterface label="Tipo">
           <SelectInterface
@@ -146,14 +216,12 @@ export default function AppointmentsFormInterface({
         />
       </FieldInterface>
 
-      <div className="flex items-center gap-3">
-        <ButtonInterface type="submit" variant="success" loading={saving}>
-          {isEdit ? "Guardar cambios" : "Crear turno"}
-        </ButtonInterface>
-        <ButtonInterface type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </ButtonInterface>
-      </div>
+      <FormActionsInterface
+        submitLabel={isEdit ? "Guardar cambios" : "Crear turno"}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        saving={saving}
+      />
     </form>
   );
 }

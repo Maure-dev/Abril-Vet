@@ -8,6 +8,7 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 
@@ -53,9 +54,10 @@ export default function BillingDetailInterface({ invoice, onEdit, onDelete, onBa
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(invoice)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(invoice)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(invoice)}
+            message="¿Seguro que querés eliminar esta factura? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

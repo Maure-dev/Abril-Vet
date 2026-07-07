@@ -2,8 +2,9 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
-import { ArrowLeft } from "@app/modules/main/interfaces/icons";
+import { ArrowLeft, Paperclip } from "@app/modules/main/interfaces/icons";
 import { SURGERY_STATUS_LABELS } from "@app/modules/surgeries/constants/constants";
 import type { SurgeryStatusType, SurgeryType } from "@app/modules/surgeries/entities/entities";
 
@@ -51,9 +52,10 @@ export default function SurgeriesDetailInterface({ surgery, onEdit, onDelete, on
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(surgery)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(surgery)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(surgery)}
+            message="¿Seguro que querés eliminar esta cirugía? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 
@@ -85,6 +87,27 @@ export default function SurgeriesDetailInterface({ surgery, onEdit, onDelete, on
         <CardInterface>
           <h3 className="mb-2 font-display text-base text-brand-fg">Observaciones</h3>
           <p className="whitespace-pre-line text-sm text-ink">{surgery.notes}</p>
+        </CardInterface>
+      ) : null}
+
+      {surgery.attachments && surgery.attachments.length > 0 ? (
+        <CardInterface>
+          <h3 className="mb-4 font-display text-base text-brand-fg">Adjuntos</h3>
+          <ul className="flex flex-col gap-2">
+            {surgery.attachments.map((attachment) => (
+              <li key={attachment.url}>
+                <a
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-brand-fg hover:underline"
+                >
+                  <Paperclip className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
+                  {attachment.name}
+                </a>
+              </li>
+            ))}
+          </ul>
         </CardInterface>
       ) : null}
     </div>

@@ -23,6 +23,7 @@ export default function PurchasesModule() {
     handleRemoveItem,
     handleChangeItem,
     handleSubmit,
+    handleQuickStatus,
     handleDelete
   } = usePurchasesActions();
   const state = getPurchasesState;
@@ -78,6 +79,7 @@ export default function PurchasesModule() {
           onOpenCreate={handleOpenCreate}
           onOpenDetail={handleOpenDetail}
           onOpenEdit={handleOpenEdit}
+          onQuickStatus={handleQuickStatus}
         />
       ) : null}
     </section>

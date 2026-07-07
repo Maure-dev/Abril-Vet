@@ -1,3 +1,4 @@
+import type { AttachmentType } from "@app/modules/main/entities/entities";
 import type { Dispatch, SetStateAction } from "react";
 
 // ── Union types del dominio (sin enum) ──
@@ -22,6 +23,7 @@ export type SurgeryType = {
   evolution: string;
   status: SurgeryStatusType;
   notes: string;
+  attachments: AttachmentType[]; // adjuntos (imágenes, PDFs) subidos a Cloudinary
   createdAt?: string;
   updatedAt?: string;
 };
@@ -41,9 +43,17 @@ export type SurgeryFormType = {
   evolution: string;
   status: SurgeryStatusType;
   notes: string;
+  attachments: AttachmentType[];
 };
 
 export type SurgeryFormErrorsType = Partial<Record<keyof SurgeryFormType, string>>;
+
+// Campos para precargar el alta desde un turno (deep-link ?patientId&vetId&date).
+export type SurgeryPrefillType = {
+  patientId?: string;
+  vetId?: string;
+  date?: string;
+};
 
 // ── Estado y contexto del módulo ──
 export type SurgeriesDataType = {

@@ -18,8 +18,8 @@ export type AppointmentStatusFilterType = AppointmentStatusType | "all";
 // Modo de la página (lista / alta / edición / ficha).
 export type AppointmentsModeType = "list" | "create" | "edit" | "detail";
 
-// Vista de la lista: tabla o calendario semanal.
-export type AppointmentsViewType = "list" | "week";
+// Vista de la agenda: calendario semanal o tablero (kanban por estado).
+export type AppointmentsViewType = "week" | "board";
 
 // ── Turno (agenda) ──
 export type AppointmentType = {
@@ -62,6 +62,7 @@ export type AppointmentsDataType = {
   query: string;
   typeFilter: AppointmentTypeFilterType;
   statusFilter: AppointmentStatusFilterType;
+  vetFilter: string; // "all" o el id del veterinario a filtar
   mode: AppointmentsModeType;
   view: AppointmentsViewType;
   weekStart: string; // lunes de la semana visible en el calendario (yyyy-mm-dd; "" = semana actual)

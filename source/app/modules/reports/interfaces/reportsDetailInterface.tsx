@@ -1,6 +1,7 @@
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { METRIC_LABELS, TONE_LABELS } from "@app/modules/reports/constants/constants";
 import type { ReportMetricType } from "@app/modules/reports/entities/entities";
@@ -35,9 +36,10 @@ export default function ReportsDetailInterface({ metric, onEdit, onDelete, onBac
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(metric)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(metric)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(metric)}
+            message="¿Seguro que querés eliminar esta métrica? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

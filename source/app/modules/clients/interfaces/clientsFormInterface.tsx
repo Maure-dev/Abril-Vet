@@ -1,6 +1,6 @@
 import type { ClientFormErrorsType, ClientFormType } from "@app/modules/clients/entities/entities";
-import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import FieldInterface from "@app/modules/main/interfaces/fieldInterface";
+import FormActionsInterface from "@app/modules/main/interfaces/formActionsInterface";
 import {
   InputInterface,
   SelectInterface,
@@ -27,13 +27,7 @@ export default function ClientsFormInterface({
   onCancel
 }: Props) {
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      className="flex flex-col gap-5"
-    >
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldInterface label="Nombre" error={errors.firstName} required>
           <InputInterface
@@ -100,14 +94,12 @@ export default function ClientsFormInterface({
         />
       </FieldInterface>
 
-      <div className="flex items-center gap-3">
-        <ButtonInterface type="submit" variant="success" loading={saving}>
-          {isEdit ? "Guardar cambios" : "Crear cliente"}
-        </ButtonInterface>
-        <ButtonInterface type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </ButtonInterface>
-      </div>
+      <FormActionsInterface
+        submitLabel={isEdit ? "Guardar cambios" : "Crear cliente"}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        saving={saving}
+      />
     </form>
   );
 }

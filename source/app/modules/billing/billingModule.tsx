@@ -14,6 +14,7 @@ export default function BillingModule() {
     handleLoad,
     handleSearch,
     handleFilterStatus,
+    handleQuickStatus,
     handleOpenCreate,
     handleOpenEdit,
     handleOpenDetail,
@@ -78,6 +79,7 @@ export default function BillingModule() {
           onOpenCreate={handleOpenCreate}
           onOpenDetail={handleOpenDetail}
           onOpenEdit={handleOpenEdit}
+          onQuickStatus={handleQuickStatus}
         />
       ) : null}
     </section>

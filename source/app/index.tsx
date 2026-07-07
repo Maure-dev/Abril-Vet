@@ -50,6 +50,12 @@ const CashRegisterModuleProvider = lazy(
 );
 const ReportsModuleProvider = lazy(() => import("@app/modules/reports/reportsModuleProvider"));
 const StaffModuleProvider = lazy(() => import("@app/modules/staff/staffModuleProvider"));
+const DewormingsModuleProvider = lazy(
+  () => import("@app/modules/dewormings/dewormingsModuleProvider")
+);
+const SuppliersModuleProvider = lazy(
+  () => import("@app/modules/suppliers/suppliersModuleProvider")
+);
 
 const rootEl = document.getElementById("root");
 if (!rootEl) {
@@ -79,6 +85,7 @@ ReactDOM.createRoot(rootEl).render(
               <Route element={<RequireAuthInterface roles={["admin", "vet", "assistant"]} />}>
                 <Route path="/historia-clinica" element={<MedicalRecordsModuleProvider />} />
                 <Route path="/vacunacion" element={<VaccinationsModuleProvider />} />
+                <Route path="/desparasitaciones" element={<DewormingsModuleProvider />} />
                 <Route path="/recordatorios" element={<RemindersModuleProvider />} />
                 <Route path="/estudios" element={<StudiesModuleProvider />} />
                 <Route path="/cirugias" element={<SurgeriesModuleProvider />} />
@@ -91,6 +98,7 @@ ReactDOM.createRoot(rootEl).render(
                 <Route path="/productos" element={<ProductsModuleProvider />} />
                 <Route path="/inventario" element={<InventoryModuleProvider />} />
                 <Route path="/compras" element={<PurchasesModuleProvider />} />
+                <Route path="/proveedores" element={<SuppliersModuleProvider />} />
                 <Route path="/caja" element={<CashRegisterModuleProvider />} />
                 <Route path="/reportes" element={<ReportsModuleProvider />} />
               </Route>

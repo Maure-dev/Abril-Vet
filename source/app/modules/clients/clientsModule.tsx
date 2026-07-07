@@ -18,6 +18,7 @@ export default function ClientsModule() {
     handleOpenCreate,
     handleOpenEdit,
     handleOpenDetail,
+    handleLoadAccount,
     handleCancel,
     handleChangeField,
     handleSubmit,
@@ -59,6 +60,9 @@ export default function ClientsModule() {
       {state.mode === "detail" && state.selected ? (
         <ClientsDetailInterface
           client={state.selected}
+          account={state.account}
+          accountLoading={state.accountLoading}
+          onLoadAccount={handleLoadAccount}
           onEdit={handleOpenEdit}
           onDelete={handleDelete}
           onBack={handleCancel}

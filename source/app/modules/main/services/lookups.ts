@@ -12,6 +12,7 @@ type ClientDoc = { firstName?: string; lastName?: string; docId?: string };
 type PatientDoc = { name?: string; species?: string; clientId?: string };
 type StaffDoc = { firstName?: string; lastName?: string; roles?: string[] };
 type ProductDoc = { name?: string; code?: string };
+type SupplierDoc = { name?: string; cuit?: string };
 
 // Quiénes pueden asignarse como profesional en un turno/atención: veterinarios y asistentes
 // (no administradores ni recepcionistas).
@@ -75,6 +76,16 @@ export async function fetchOptions(kind: LookupKindType): Promise<OptionType[]> 
         })
         .filter((item) => item.roles.some((r) => VET_ROLES.includes(r)))
         .map((item) => ({ id: item.id, label: item.label }))
+    );
+  }
+
+  if (kind === "suppliers") {
+    const snapshot = await getDocs(collection(db, "suppliers"));
+    return sortByLabel(
+      snapshot.docs.map((snap) => {
+        const data = snap.data() as SupplierDoc;
+        return { id: snap.id, label: data.name ?? "(sin nombre)", sublabel: data.cuit };
+      })
     );
   }
 

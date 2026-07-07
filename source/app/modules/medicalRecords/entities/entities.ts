@@ -1,3 +1,4 @@
+import type { AttachmentType } from "@app/modules/main/entities/entities";
 import type { Dispatch, SetStateAction } from "react";
 
 // Modo de la página (lista / alta / edición / ficha).
@@ -18,6 +19,7 @@ export type MedicalRecordType = {
   indications: string; // indicaciones al dueño
   evolution: string; // evolución
   nextControlDate: string; // próximo control (yyyy-mm-dd) o "" si no hay
+  attachments: AttachmentType[]; // adjuntos: imágenes, PDFs, resultados de laboratorio
   createdAt?: string;
   updatedAt?: string;
 };
@@ -39,9 +41,17 @@ export type MedicalRecordFormType = {
   indications: string;
   evolution: string;
   nextControlDate: string;
+  attachments: AttachmentType[]; // adjuntos manejados por FileUploadInterface
 };
 
 export type MedicalRecordFormErrorsType = Partial<Record<keyof MedicalRecordFormType, string>>;
+
+// Datos de precarga del alta al llegar desde un turno ("Registrar atención").
+export type MedicalRecordPrefillType = {
+  patientId?: string;
+  vetId?: string;
+  date?: string;
+};
 
 // ── Estado y contexto del módulo ──
 export type MedicalRecordsDataType = {

@@ -99,8 +99,14 @@ export const useStaffActions = () => {
         await createStaffMember(toStaffCreatePayload(form));
         onNotification(true, "Usuario creado en Firebase Auth y en el directorio.");
       }
-      setStaffState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setStaffState((s) => {
+        if (isEdit && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar. Revisá que seas admin y que el email no exista.");
       setStaffState((s) => ({ ...s, saving: false }));

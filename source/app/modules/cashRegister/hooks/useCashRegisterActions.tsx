@@ -170,8 +170,14 @@ export const useCashRegisterActions = () => {
         });
         onNotification(true, "Caja abierta.");
       }
-      setCashRegisterState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setCashRegisterState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar la sesión de caja. Probá de nuevo.");
       setCashRegisterState((s) => ({ ...s, saving: false }));

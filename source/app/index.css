@@ -210,6 +210,18 @@
     outline-offset: 0.125rem;
   }
 
+  /* Manito en botones e hipervínculos (los deshabilitados quedan con cursor por defecto). */
+  button:not(:disabled),
+  a[href],
+  label[for],
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: default;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

@@ -107,8 +107,14 @@ export const useProductsActions = () => {
         await createProduct(toProductInput(form));
         onNotification(true, "Producto creado.");
       }
-      setProductsState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setProductsState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar el producto. Probá de nuevo.");
       setProductsState((s) => ({ ...s, saving: false }));

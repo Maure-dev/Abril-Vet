@@ -21,6 +21,7 @@ export function buildMedicalRecord(overrides: Partial<MedicalRecordType> = {}): 
     indications: "Volver en un año",
     evolution: "",
     nextControlDate: "2027-06-01",
+    attachments: [],
     ...overrides
   };
 }

@@ -5,6 +5,7 @@ import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterfac
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Bell, Pencil } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
+import StatusSelectInterface from "@app/modules/main/interfaces/statusSelectInterface";
 import {
   REMINDER_CHANNEL_LABELS,
   REMINDER_STATUS_LABELS,
@@ -30,16 +31,15 @@ type Props = {
   onOpenCreate: () => void;
   onOpenDetail: (reminder: ReminderType) => void;
   onOpenEdit: (reminder: ReminderType) => void;
+  onQuickStatus: (reminder: ReminderType, status: ReminderStatusType) => void;
 };
 
 const TYPE_OPTIONS = Object.keys(REMINDER_TYPE_LABELS) as ReminderTypeType[];
 const STATUS_OPTIONS = Object.keys(REMINDER_STATUS_LABELS) as ReminderStatusType[];
-
-const STATUS_TONE: Record<ReminderStatusType, "warning" | "success" | "neutral"> = {
-  pending: "warning",
-  sent: "success",
-  cancelled: "neutral"
-};
+const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((status) => ({
+  value: status,
+  label: REMINDER_STATUS_LABELS[status]
+}));
 
 export default function RemindersListInterface({
   items,
@@ -51,7 +51,8 @@ export default function RemindersListInterface({
   onFilterStatus,
   onOpenCreate,
   onOpenDetail,
-  onOpenEdit
+  onOpenEdit,
+  onQuickStatus
 }: Props) {
   const { getLabel: getPatientLabel } = useEntityLookup("patients");
   const { getLabel: getClientLabel } = useEntityLookup("clients");
@@ -155,9 +156,12 @@ export default function RemindersListInterface({
                       {REMINDER_CHANNEL_LABELS[reminder.channel]}
                     </td>
                     <td className="px-4 py-3">
-                      <BadgeInterface tone={STATUS_TONE[reminder.status]}>
-                        {REMINDER_STATUS_LABELS[reminder.status]}
-                      </BadgeInterface>
+                      <StatusSelectInterface
+                        value={reminder.status}
+                        options={STATUS_SELECT_OPTIONS}
+                        onChange={(value) => onQuickStatus(reminder, value as ReminderStatusType)}
+                        ariaLabel={`Cambiar estado del recordatorio del ${reminder.dueDate}`}
+                      />
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button

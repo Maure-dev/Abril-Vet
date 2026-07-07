@@ -1,13 +1,16 @@
+import { todayStr } from "@app/modules/main/helpers/weekDates";
 import { useDocumentHead } from "@app/modules/main/hooks/useDocumentHead";
 import LoadingInterface from "@app/modules/main/interfaces/loadingInterface";
 import PageHeaderInterface from "@app/modules/main/interfaces/pageHeaderInterface";
 import { filterMetrics } from "@app/modules/reports/helpers/filterMetrics";
+import { groupRevenueByMonth } from "@app/modules/reports/helpers/groupRevenueByMonth";
 import { useReportsActions } from "@app/modules/reports/hooks/useReportsActions";
 import ReportsBarsInterface from "@app/modules/reports/interfaces/reportsBarsInterface";
 import ReportsDetailInterface from "@app/modules/reports/interfaces/reportsDetailInterface";
 import ReportsFormInterface from "@app/modules/reports/interfaces/reportsFormInterface";
 import ReportsKpisInterface from "@app/modules/reports/interfaces/reportsKpisInterface";
 import ReportsListInterface from "@app/modules/reports/interfaces/reportsListInterface";
+import ReportsRevenueChartInterface from "@app/modules/reports/interfaces/reportsRevenueChartInterface";
 import { useReportsProvider } from "@app/modules/reports/states/reportsProvider";
 import { useEffect } from "react";
 
@@ -71,6 +74,7 @@ export default function ReportsModule() {
         ) : (
           <div className="flex flex-col gap-6">
             <ReportsKpisInterface metrics={state.metrics} onOpenDetail={handleOpenDetail} />
+            <ReportsRevenueChartInterface data={groupRevenueByMonth(state.sales, todayStr(), 6)} />
             <ReportsBarsInterface metrics={state.metrics} />
             <ReportsListInterface
               metrics={visible}

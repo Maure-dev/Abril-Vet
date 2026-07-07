@@ -3,6 +3,7 @@ import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
 import { FlaskConical, Pencil } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
+import StatusSelectInterface from "@app/modules/main/interfaces/statusSelectInterface";
 import { STUDY_STATUS_LABELS, STUDY_TYPE_LABELS } from "@app/modules/studies/constants/constants";
 import type {
   StudyStatusFilterType,
@@ -23,16 +24,15 @@ type Props = {
   onOpenCreate: () => void;
   onOpenDetail: (study: StudyType) => void;
   onOpenEdit: (study: StudyType) => void;
+  onQuickStatus: (study: StudyType, status: StudyStatusType) => void;
 };
 
 const TYPE_OPTIONS = Object.keys(STUDY_TYPE_LABELS) as StudyTypeType[];
 const STATUS_OPTIONS = Object.keys(STUDY_STATUS_LABELS) as StudyStatusType[];
-
-const STATUS_TONE: Record<StudyStatusType, "neutral" | "info" | "success"> = {
-  requested: "neutral",
-  in_progress: "info",
-  completed: "success"
-};
+const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((status) => ({
+  value: status,
+  label: STUDY_STATUS_LABELS[status]
+}));
 
 export default function StudiesListInterface({
   items,
@@ -44,7 +44,8 @@ export default function StudiesListInterface({
   onFilterStatus,
   onOpenCreate,
   onOpenDetail,
-  onOpenEdit
+  onOpenEdit,
+  onQuickStatus
 }: Props) {
   return (
     <div className="flex flex-col gap-4">
@@ -117,9 +118,12 @@ export default function StudiesListInterface({
                   </td>
                   <td className="px-4 py-3 font-medium text-ink">{study.name}</td>
                   <td className="px-4 py-3">
-                    <BadgeInterface tone={STATUS_TONE[study.status]}>
-                      {STUDY_STATUS_LABELS[study.status]}
-                    </BadgeInterface>
+                    <StatusSelectInterface
+                      value={study.status}
+                      options={STATUS_SELECT_OPTIONS}
+                      onChange={(value) => onQuickStatus(study, value as StudyStatusType)}
+                      ariaLabel={`Cambiar estado de ${study.name}`}
+                    />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

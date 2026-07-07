@@ -28,7 +28,8 @@ export const EMPTY_FORM: MedicalRecordFormType = {
   prescription: "",
   indications: "",
   evolution: "",
-  nextControlDate: ""
+  nextControlDate: "",
+  attachments: []
 };
 
 export const INITIAL_STATE = {

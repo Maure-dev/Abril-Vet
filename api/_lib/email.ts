@@ -1,6 +1,6 @@
 // Envío de email vía Resend (opcional). Si RESEND_API_KEY no está configurada, no envía y
-// devuelve false para que el llamador muestre el link manualmente.
-export async function sendResetEmail(to: string, link: string): Promise<boolean> {
+// devuelve false para que el llamador maneje el caso (mostrar link manual, contar como omitido, etc.).
+export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM || "Abril Vet <no-reply@abril-vet.app>";
   if (!apiKey) {
@@ -12,14 +12,18 @@ export async function sendResetEmail(to: string, link: string): Promise<boolean>
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      from: from,
-      to: [to],
-      subject: "Acceso a Abril Vet",
-      html: `<p>Te damos acceso a <strong>Abril Vet</strong>.</p>
-             <p>Definí o restablecé tu contraseña desde este enlace:</p>
-             <p><a href="${link}">${link}</a></p>`
-    })
+    body: JSON.stringify({ from: from, to: [to], subject: subject, html: html })
   });
   return response.ok;
+}
+
+// Email de acceso/recuperación de contraseña para el personal.
+export async function sendResetEmail(to: string, link: string): Promise<boolean> {
+  return sendEmail(
+    to,
+    "Acceso a Abril Vet",
+    `<p>Te damos acceso a <strong>Abril Vet</strong>.</p>
+     <p>Definí o restablecé tu contraseña desde este enlace:</p>
+     <p><a href="${link}">${link}</a></p>`
+  );
 }

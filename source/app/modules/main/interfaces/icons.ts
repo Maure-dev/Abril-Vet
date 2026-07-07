@@ -9,6 +9,8 @@ export { default as BarChart3 } from "lucide-react/dist/esm/icons/bar-chart-3.mj
 export { default as Bed } from "lucide-react/dist/esm/icons/bed.mjs";
 export { default as Bell } from "lucide-react/dist/esm/icons/bell.mjs";
 export { default as Boxes } from "lucide-react/dist/esm/icons/boxes.mjs";
+export { default as Bug } from "lucide-react/dist/esm/icons/bug.mjs";
+export { default as Building2 } from "lucide-react/dist/esm/icons/building-2.mjs";
 export { default as Calendar } from "lucide-react/dist/esm/icons/calendar.mjs";
 export { default as CalendarDays } from "lucide-react/dist/esm/icons/calendar-days.mjs";
 export { default as Check } from "lucide-react/dist/esm/icons/check.mjs";
@@ -26,6 +28,7 @@ export { default as Paperclip } from "lucide-react/dist/esm/icons/paperclip.mjs"
 export { default as PawPrint } from "lucide-react/dist/esm/icons/paw-print.mjs";
 export { default as Pencil } from "lucide-react/dist/esm/icons/pencil.mjs";
 export { default as Plus } from "lucide-react/dist/esm/icons/plus.mjs";
+export { default as Printer } from "lucide-react/dist/esm/icons/printer.mjs";
 export { default as Receipt } from "lucide-react/dist/esm/icons/receipt.mjs";
 export { default as Scissors } from "lucide-react/dist/esm/icons/scissors.mjs";
 export { default as Search } from "lucide-react/dist/esm/icons/search.mjs";

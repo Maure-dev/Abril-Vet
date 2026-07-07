@@ -2,6 +2,7 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { STATUS_LABELS, STATUS_TONES } from "@app/modules/vaccinations/constants/constants";
@@ -48,9 +49,10 @@ export default function VaccinationsDetailInterface({
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(vaccination)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(vaccination)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(vaccination)}
+            message="¿Seguro que querés eliminar esta vacunación? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

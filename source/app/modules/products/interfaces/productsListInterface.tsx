@@ -1,3 +1,4 @@
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
@@ -40,6 +41,8 @@ export default function ProductsListInterface({
   onOpenDetail,
   onOpenEdit
 }: Props) {
+  const { getLabel: getSupplierLabel } = useEntityLookup("suppliers");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -90,6 +93,7 @@ export default function ProductsListInterface({
               <tr>
                 <th className="px-4 py-3 font-semibold">Código</th>
                 <th className="px-4 py-3 font-semibold">Nombre</th>
+                <th className="px-4 py-3 font-semibold">Proveedor</th>
                 <th className="px-4 py-3 font-semibold">Categoría</th>
                 <th className="px-4 py-3 font-semibold">Precio venta</th>
                 <th className="px-4 py-3 font-semibold">Stock</th>
@@ -105,6 +109,9 @@ export default function ProductsListInterface({
                 >
                   <td className="px-4 py-3 font-medium text-ink">{product.code}</td>
                   <td className="px-4 py-3 text-ink">{product.name}</td>
+                  <td className="px-4 py-3 text-ink-soft">
+                    {getSupplierLabel(product.supplierId) || "—"}
+                  </td>
                   <td className="px-4 py-3">
                     <BadgeInterface tone="brand">
                       {CATEGORY_LABELS[product.category]}

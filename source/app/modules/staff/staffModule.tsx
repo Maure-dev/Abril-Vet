@@ -47,9 +47,8 @@ export default function StaffModule() {
 
       {state.mode === "list" ? (
         <p className="mb-4 rounded-card border border-line bg-surface-muted px-4 py-3 text-sm text-ink-soft">
-          Desde acá se crea el usuario y su acceso a Firebase Auth, se cambia la contraseña y se
-          habilita o deshabilita el acceso. El primer administrador se crea una única vez con el
-          script scripts/setUserRole.mjs.
+          Desde acá se crea el usuario y su acceso a Abril Vet, se cambia la contraseña y se
+          habilita o deshabilita el acceso.
         </p>
       ) : null}
 

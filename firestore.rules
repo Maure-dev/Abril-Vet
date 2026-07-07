@@ -71,6 +71,7 @@ service cloud.firestore {
     match /studies/{id}          { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
     match /surgeries/{id}        { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
     match /hospitalizations/{id} { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
+    match /dewormings/{id}       { allow read, create, update: if isClinical(); allow delete: if isAdmin(); }
 
     // ── Comercial: sólo recepción y admin ──
     match /sales/{id}            { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
@@ -78,6 +79,7 @@ service cloud.firestore {
     match /products/{id}         { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
     match /stockMovements/{id}   { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
     match /purchaseOrders/{id}   { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
+    match /suppliers/{id}        { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
     match /cashSessions/{id}     { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
     match /reports/{id}          { allow read, create, update: if isCommercial(); allow delete: if isAdmin(); }
   }

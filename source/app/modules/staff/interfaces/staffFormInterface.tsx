@@ -1,7 +1,7 @@
 import { ROLE_LABELS } from "@app/modules/main/constants/constants";
 import type { UserRoleType } from "@app/modules/main/entities/entities";
-import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import FieldInterface from "@app/modules/main/interfaces/fieldInterface";
+import FormActionsInterface from "@app/modules/main/interfaces/formActionsInterface";
 import {
   InputInterface,
   SelectInterface,
@@ -38,13 +38,7 @@ export default function StaffFormInterface({
   };
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      className="flex flex-col gap-5"
-    >
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-5">
       <p className="rounded-card border border-line bg-surface-muted px-4 py-3 text-sm text-ink-soft">
         Al crear personal se crea también el usuario de acceso en Firebase Auth con los roles
         elegidos. Después podés deshabilitar el acceso, cambiar la contraseña o enviar una
@@ -150,14 +144,12 @@ export default function StaffFormInterface({
         />
       </FieldInterface>
 
-      <div className="flex items-center gap-3">
-        <ButtonInterface type="submit" variant="success" loading={saving}>
-          {isEdit ? "Guardar cambios" : "Crear personal y acceso"}
-        </ButtonInterface>
-        <ButtonInterface type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </ButtonInterface>
-      </div>
+      <FormActionsInterface
+        submitLabel={isEdit ? "Guardar cambios" : "Crear personal y acceso"}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        saving={saving}
+      />
     </form>
   );
 }

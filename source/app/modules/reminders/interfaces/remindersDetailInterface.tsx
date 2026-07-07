@@ -2,6 +2,7 @@ import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import {
@@ -49,9 +50,10 @@ export default function RemindersDetailInterface({ reminder, onEdit, onDelete, o
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(reminder)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(reminder)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(reminder)}
+            message="¿Seguro que querés eliminar este recordatorio? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

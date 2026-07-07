@@ -1,8 +1,9 @@
 import { useNotification } from "@app/modules/main/hooks/useNotification";
-import { EMPTY_FORM } from "@app/modules/reminders/constants/constants";
+import { EMPTY_FORM, REMINDER_STATUS_LABELS } from "@app/modules/reminders/constants/constants";
 import type {
   ReminderFormType,
   ReminderStatusFilterType,
+  ReminderStatusType,
   ReminderType,
   ReminderTypeFilterType
 } from "@app/modules/reminders/entities/entities";
@@ -42,6 +43,26 @@ export const useRemindersActions = () => {
 
   const handleFilterStatus = (statusFilter: ReminderStatusFilterType): void => {
     setRemindersState((s) => ({ ...s, statusFilter: statusFilter }));
+  };
+
+  // Cambia sólo el estado de un recordatorio (combo en la lista), sin editar.
+  const handleQuickStatus = async (
+    reminder: ReminderType,
+    status: ReminderStatusType
+  ): Promise<void> => {
+    if (reminder.status === status) {
+      return;
+    }
+    try {
+      await updateReminder(
+        reminder.id,
+        toReminderInput({ ...formFromReminder(reminder), status: status })
+      );
+      onNotification(true, `Recordatorio: ${REMINDER_STATUS_LABELS[status]}.`);
+      await handleLoad();
+    } catch {
+      onNotification(false, "No se pudo cambiar el estado del recordatorio.");
+    }
   };
 
   // Abre el formulario de alta.
@@ -104,8 +125,14 @@ export const useRemindersActions = () => {
         await createReminder(toReminderInput(form));
         onNotification(true, "Recordatorio creado.");
       }
-      setRemindersState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setRemindersState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar el recordatorio. Probá de nuevo.");
       setRemindersState((s) => ({ ...s, saving: false }));
@@ -151,6 +178,7 @@ export const useRemindersActions = () => {
     handleChangeField,
     handleSubmit,
     handleDelete,
-    handleCancelReminder
+    handleCancelReminder,
+    handleQuickStatus
   };
 };

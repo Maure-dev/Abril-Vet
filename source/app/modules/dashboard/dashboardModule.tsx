@@ -49,7 +49,6 @@ export default function DashboardModule() {
         loading={state.loading}
         todayAppointments={state.todayAppointments}
         upcomingAppointments={state.upcomingAppointments}
-        pendingVaccinations={state.pendingVaccinations}
         hospitalized={state.hospitalized}
       />
     </section>

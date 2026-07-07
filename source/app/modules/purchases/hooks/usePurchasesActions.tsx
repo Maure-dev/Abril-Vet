@@ -1,10 +1,11 @@
 import { useNotification } from "@app/modules/main/hooks/useNotification";
-import { EMPTY_FORM, EMPTY_ITEM } from "@app/modules/purchases/constants/constants";
+import { EMPTY_FORM, EMPTY_ITEM, STATUS_LABELS } from "@app/modules/purchases/constants/constants";
 import type {
   PurchaseFormType,
   PurchaseItemFormType,
   PurchaseOrderType,
-  PurchaseStatusFilterType
+  PurchaseStatusFilterType,
+  PurchaseStatusType
 } from "@app/modules/purchases/entities/entities";
 import { formFromPurchase, toPurchaseInput } from "@app/modules/purchases/helpers/purchaseMappers";
 import { validatePurchasesForm } from "@app/modules/purchases/helpers/validatePurchasesForm";
@@ -130,11 +131,37 @@ export const usePurchasesActions = () => {
         await createPurchase(toPurchaseInput(form));
         onNotification(true, "Compra creada.");
       }
-      setPurchasesState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setPurchasesState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar la compra. Probá de nuevo.");
       setPurchasesState((s) => ({ ...s, saving: false }));
+    }
+  };
+
+  // Cambia sólo el estado de una orden (combo en la lista), sin entrar a editar.
+  const handleQuickStatus = async (
+    purchase: PurchaseOrderType,
+    status: PurchaseStatusType
+  ): Promise<void> => {
+    if (purchase.status === status) {
+      return;
+    }
+    try {
+      await updatePurchase(
+        purchase.id,
+        toPurchaseInput({ ...formFromPurchase(purchase), status: status })
+      );
+      onNotification(true, `Compra: ${STATUS_LABELS[status]}.`);
+      await handleLoad();
+    } catch {
+      onNotification(false, "No se pudo cambiar el estado de la compra.");
     }
   };
 
@@ -176,6 +203,7 @@ export const usePurchasesActions = () => {
     handleRemoveItem,
     handleChangeItem,
     handleSubmit,
+    handleQuickStatus,
     handleCancelOrder,
     handleDelete
   };

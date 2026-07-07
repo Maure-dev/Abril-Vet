@@ -11,6 +11,27 @@ export type SpeciesFilterType = SpeciesType | "all";
 // Modo de la página (lista / alta / edición / ficha).
 export type PatientsModeType = "list" | "create" | "edit" | "detail";
 
+// ── Historia clínica unificada del paciente ──
+// Un ítem del timeline agrega registros de varias colecciones clínicas (consulta, vacuna,
+// desparasitación, estudio, cirugía, internación) del paciente. `route` es la ruta del módulo
+// para abrir el registro completo (deep-link ?id=).
+export type PatientHistoryKindType =
+  | "medicalRecord"
+  | "vaccination"
+  | "deworming"
+  | "study"
+  | "surgery"
+  | "hospitalization";
+
+export type PatientHistoryItemType = {
+  kind: PatientHistoryKindType;
+  kindLabel: string;
+  id: string;
+  date: string;
+  title: string;
+  route: string;
+};
+
 // ── Paciente (mascota) ──
 export type PatientType = {
   id: string;
@@ -55,6 +76,7 @@ export type PatientFormType = {
   preexistingConditions: string;
   habitualMedication: string;
   notes: string;
+  photoUrl: string;
 };
 
 export type PatientFormErrorsType = Partial<Record<keyof PatientFormType, string>>;

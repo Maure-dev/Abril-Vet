@@ -2,6 +2,7 @@ import { useNotification } from "@app/modules/main/hooks/useNotification";
 import { EMPTY_FORM } from "@app/modules/medicalRecords/constants/constants";
 import type {
   MedicalRecordFormType,
+  MedicalRecordPrefillType,
   MedicalRecordType
 } from "@app/modules/medicalRecords/entities/entities";
 import {
@@ -49,6 +50,22 @@ export const useMedicalRecordsActions = () => {
       selected: null,
       form: EMPTY_FORM,
       errors: {}
+    }));
+  };
+
+  // Abre el alta con el formulario precargado (p. ej. desde un turno: paciente, vet y fecha).
+  const handleOpenCreatePrefilled = (prefill: MedicalRecordPrefillType): void => {
+    setMedicalRecordsState((s) => ({
+      ...s,
+      mode: "create",
+      selected: null,
+      errors: {},
+      form: {
+        ...EMPTY_FORM,
+        patientId: prefill.patientId ?? EMPTY_FORM.patientId,
+        vetId: prefill.vetId ?? EMPTY_FORM.vetId,
+        date: prefill.date ?? EMPTY_FORM.date
+      }
     }));
   };
 
@@ -101,8 +118,14 @@ export const useMedicalRecordsActions = () => {
         await createMedicalRecord(toMedicalRecordInput(form));
         onNotification(true, "Registro clínico creado.");
       }
-      setMedicalRecordsState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setMedicalRecordsState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar el registro clínico. Probá de nuevo.");
       setMedicalRecordsState((s) => ({ ...s, saving: false }));
@@ -126,6 +149,7 @@ export const useMedicalRecordsActions = () => {
     handleSearch,
     handleFilterPatient,
     handleOpenCreate,
+    handleOpenCreatePrefilled,
     handleOpenEdit,
     handleOpenDetail,
     handleCancel,

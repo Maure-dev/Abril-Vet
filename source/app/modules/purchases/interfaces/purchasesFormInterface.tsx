@@ -2,6 +2,7 @@ import { useEntityOptions } from "@app/modules/main/hooks/useEntityOptions";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EntitySelectInterface from "@app/modules/main/interfaces/entitySelectInterface";
 import FieldInterface from "@app/modules/main/interfaces/fieldInterface";
+import FormActionsInterface from "@app/modules/main/interfaces/formActionsInterface";
 import { Plus, Trash2 } from "@app/modules/main/interfaces/icons";
 import {
   InputInterface,
@@ -55,6 +56,7 @@ export default function PurchasesFormInterface({
   onSubmit,
   onCancel
 }: Props) {
+  const { options: supplierOptions, loading: suppliersLoading } = useEntityOptions("suppliers");
   const { options: productOptions, loading: productsLoading } = useEntityOptions("products");
 
   const previewTotal = computePurchaseTotal(
@@ -66,25 +68,19 @@ export default function PurchasesFormInterface({
   );
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      className="flex flex-col gap-5"
-    >
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-5">
       <div className="grid gap-4 sm:grid-cols-2">
-        <FieldInterface
-          label="Proveedor (ID)"
+        <EntitySelectInterface
+          label="Proveedor"
+          value={form.supplierId}
+          onChange={(id) => onChange("supplierId", id)}
+          options={supplierOptions}
+          loading={suppliersLoading}
           error={errors.supplierId}
-          hint="Referencia al proveedor"
           required
-        >
-          <InputInterface
-            value={form.supplierId}
-            onChange={(e) => onChange("supplierId", e.target.value)}
-          />
-        </FieldInterface>
+          placeholder="Seleccioná el proveedor"
+          emptyHint="No hay proveedores. Cargá uno en Proveedores."
+        />
         <FieldInterface label="Fecha" error={errors.date}>
           <InputInterface
             type="date"
@@ -187,14 +183,12 @@ export default function PurchasesFormInterface({
         />
       </FieldInterface>
 
-      <div className="flex items-center gap-3">
-        <ButtonInterface type="submit" variant="success" loading={saving}>
-          {isEdit ? "Guardar cambios" : "Crear compra"}
-        </ButtonInterface>
-        <ButtonInterface type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </ButtonInterface>
-      </div>
+      <FormActionsInterface
+        submitLabel={isEdit ? "Guardar cambios" : "Crear compra"}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        saving={saving}
+      />
     </form>
   );
 }

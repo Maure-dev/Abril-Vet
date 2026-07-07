@@ -53,6 +53,7 @@ export const INITIAL_STATE = {
   REPORTS_PAGE: {
     loading: true,
     metrics: [],
+    sales: [],
     query: "",
     toneFilter: "all",
     mode: "list",

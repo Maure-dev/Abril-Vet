@@ -36,6 +36,15 @@ export const APPOINTMENT_STATUS_TONE: Record<
 // Duración por defecto (minutos) de un turno nuevo.
 export const DEFAULT_DURATION_MIN = "30";
 
+// Duraciones ofrecidas en el combo (minutos).
+export const DURATION_OPTIONS = ["15", "30", "45", "60", "90", "120"] as const;
+
+// Horario de atención de la clínica (minutos desde la medianoche) y granularidad de los turnos.
+// El combo de horario ofrece slots dentro de esta ventana, cada SLOT_STEP_MIN minutos.
+export const CLINIC_OPEN_MINUTES = 8 * 60; // 08:00
+export const CLINIC_CLOSE_MINUTES = 20 * 60; // 20:00
+export const SLOT_STEP_MIN = 15;
+
 // Formulario vacío (alta de turno).
 export const EMPTY_FORM: AppointmentFormType = {
   patientId: "",
@@ -56,8 +65,9 @@ export const INITIAL_STATE = {
     query: "",
     typeFilter: "all",
     statusFilter: "all",
+    vetFilter: "all",
     mode: "list",
-    view: "list",
+    view: "week",
     weekStart: "",
     selected: null,
     form: EMPTY_FORM,

@@ -16,6 +16,9 @@ type Props = {
   placeholder?: string;
   // Texto cuando la colección no tiene datos cargados todavía.
   emptyHint?: string;
+  // Permite dejar la selección vacía (agrega una opción para limpiarla).
+  clearable?: boolean;
+  clearLabel?: string;
 };
 
 // Selector de entidad relacionada: carga opciones automáticamente (vía useEntityOptions) y permite
@@ -29,7 +32,9 @@ export default function EntitySelectInterface({
   required = false,
   error,
   placeholder = "Seleccioná una opción",
-  emptyHint = "No hay opciones cargadas todavía"
+  emptyHint = "No hay opciones cargadas todavía",
+  clearable = false,
+  clearLabel = "Sin asignar"
 }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -93,6 +98,19 @@ export default function EntitySelectInterface({
                 className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-soft/60"
               />
             </div>
+
+            {clearable && query.trim() === "" ? (
+              <button
+                type="button"
+                onClick={() => pick("")}
+                className={`flex w-full items-center justify-between gap-2 border-b border-line px-3 py-2 text-left text-sm hover:bg-surface-muted ${
+                  value === "" ? "text-brand-fg" : "text-ink-soft"
+                }`}
+              >
+                <span>{clearLabel}</span>
+                {value === "" ? <IconInterface icon={Check} size="sm" /> : null}
+              </button>
+            ) : null}
 
             {visible.length === 0 ? (
               <p className="px-3 py-3 text-sm text-ink-soft">

@@ -1,8 +1,9 @@
-import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
+import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
 import { Pencil, Truck } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
+import StatusSelectInterface from "@app/modules/main/interfaces/statusSelectInterface";
 import { STATUS_LABELS } from "@app/modules/purchases/constants/constants";
 import type {
   PurchaseOrderType,
@@ -20,17 +21,14 @@ type Props = {
   onOpenCreate: () => void;
   onOpenDetail: (purchase: PurchaseOrderType) => void;
   onOpenEdit: (purchase: PurchaseOrderType) => void;
+  onQuickStatus: (purchase: PurchaseOrderType, status: PurchaseStatusType) => void;
 };
 
 const STATUS_OPTIONS = Object.keys(STATUS_LABELS) as PurchaseStatusType[];
-
-// Tono del badge según el estado de la orden.
-const STATUS_TONE: Record<PurchaseStatusType, "neutral" | "info" | "success" | "error"> = {
-  draft: "neutral",
-  ordered: "info",
-  received: "success",
-  cancelled: "error"
-};
+const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((status) => ({
+  value: status,
+  label: STATUS_LABELS[status]
+}));
 
 export default function PurchasesListInterface({
   items,
@@ -40,8 +38,11 @@ export default function PurchasesListInterface({
   onFilterStatus,
   onOpenCreate,
   onOpenDetail,
-  onOpenEdit
+  onOpenEdit,
+  onQuickStatus
 }: Props) {
+  const { getLabel: getSupplierLabel } = useEntityLookup("suppliers");
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -96,12 +97,17 @@ export default function PurchasesListInterface({
                   onClick={() => onOpenDetail(purchase)}
                 >
                   <td className="px-4 py-3 text-ink-soft">{purchase.date || "—"}</td>
-                  <td className="px-4 py-3 font-medium text-ink">{purchase.supplierId || "—"}</td>
+                  <td className="px-4 py-3 font-medium text-ink">
+                    {getSupplierLabel(purchase.supplierId) || purchase.supplierId || "—"}
+                  </td>
                   <td className="px-4 py-3 text-ink">{formatMoney(purchase.total)}</td>
                   <td className="px-4 py-3">
-                    <BadgeInterface tone={STATUS_TONE[purchase.status]}>
-                      {STATUS_LABELS[purchase.status]}
-                    </BadgeInterface>
+                    <StatusSelectInterface
+                      value={purchase.status}
+                      options={STATUS_SELECT_OPTIONS}
+                      onChange={(value) => onQuickStatus(purchase, value as PurchaseStatusType)}
+                      ariaLabel={`Cambiar estado de la compra ${purchase.invoiceNumber || purchase.id}`}
+                    />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

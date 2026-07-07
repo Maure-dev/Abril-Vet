@@ -1,14 +1,12 @@
 import type {
   DashboardKpiType,
-  DashHospitalizationType,
-  DashVaccinationType
+  DashHospitalizationType
 } from "@app/modules/dashboard/entities/entities";
 import {
   countActiveClients,
   countActivePatients,
   fetchActiveHospitalizations,
   fetchAppointments,
-  fetchVaccinations,
   sumInvoicesTotal,
   sumSalesTotal
 } from "@app/modules/dashboard/services/services";
@@ -21,7 +19,6 @@ import {
   PawPrint,
   Receipt,
   ShoppingCart,
-  Syringe,
   Users
 } from "@app/modules/main/interfaces/icons";
 
@@ -55,12 +52,11 @@ export const useDashboardData = () => {
     const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
     const month = today.slice(0, 7);
 
-    const [appts, clientsCount, patientsCount, vaccines, hospitalized, salesToday, invoicesMonth] =
+    const [appts, clientsCount, patientsCount, hospitalized, salesToday, invoicesMonth] =
       await Promise.all([
         safe(fetchAppointments(), []),
         safe(countActiveClients(), 0),
         safe(countActivePatients(), 0),
-        isClinical ? safe(fetchVaccinations(), []) : Promise.resolve([] as DashVaccinationType[]),
         isClinical
           ? safe(fetchActiveHospitalizations(), [])
           : Promise.resolve([] as DashHospitalizationType[]),
@@ -76,10 +72,6 @@ export const useDashboardData = () => {
       .filter((a) => a.date.slice(0, 10) > today && active(a))
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 6);
-    const pendingList = vaccines
-      .filter((v) => v.nextDoseDate)
-      .sort((a, b) => a.nextDoseDate.localeCompare(b.nextDoseDate));
-
     const kpis: DashboardKpiType[] = [
       {
         key: "today",
@@ -104,13 +96,6 @@ export const useDashboardData = () => {
       }
     ];
     if (isClinical) {
-      kpis.push({
-        key: "vaccines",
-        label: "Próximas vacunas",
-        value: String(pendingList.length),
-        tone: "warning",
-        icon: Syringe
-      });
       kpis.push({
         key: "hospitalized",
         label: "Internados",
@@ -143,7 +128,6 @@ export const useDashboardData = () => {
       appointments: appts,
       todayAppointments: todayAppointments,
       upcomingAppointments: upcomingAppointments,
-      pendingVaccinations: pendingList.slice(0, 6),
       hospitalized: hospitalized.slice(0, 6)
     }));
   };

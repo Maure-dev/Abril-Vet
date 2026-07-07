@@ -41,7 +41,6 @@ export type DashboardDataType = {
   weekStart: string; // lunes visible en el calendario ("" = semana actual)
   todayAppointments: DashAppointmentType[];
   upcomingAppointments: DashAppointmentType[];
-  pendingVaccinations: DashVaccinationType[];
   hospitalized: DashHospitalizationType[];
 };
 

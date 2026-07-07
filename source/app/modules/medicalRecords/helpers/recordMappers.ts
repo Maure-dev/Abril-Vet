@@ -18,7 +18,8 @@ export function toMedicalRecordInput(form: MedicalRecordFormType): MedicalRecord
     prescription: form.prescription.trim(),
     indications: form.indications.trim(),
     evolution: form.evolution.trim(),
-    nextControlDate: form.nextControlDate.trim()
+    nextControlDate: form.nextControlDate.trim(),
+    attachments: form.attachments
   };
 }
 
@@ -36,6 +37,8 @@ export function formFromMedicalRecord(record: MedicalRecordType): MedicalRecordF
     prescription: record.prescription,
     indications: record.indications,
     evolution: record.evolution,
-    nextControlDate: record.nextControlDate
+    nextControlDate: record.nextControlDate,
+    // Registros previos a esta feature pueden no tener el campo: default a lista vacía.
+    attachments: record.attachments ?? []
   };
 }

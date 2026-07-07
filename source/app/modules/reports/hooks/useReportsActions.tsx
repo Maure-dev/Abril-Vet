@@ -16,6 +16,7 @@ import {
   createReport,
   deleteReport,
   fetchMetricCount,
+  fetchSalesForReports,
   updateReport
 } from "@app/modules/reports/services/services";
 import { useReportsProvider } from "@app/modules/reports/states/reportsProvider";
@@ -33,10 +34,16 @@ export const useReportsActions = () => {
       for (const key of METRIC_ORDER) {
         counts[key] = await fetchMetricCount(key);
       }
-      setReportsState((s) => ({ ...s, metrics: buildMetrics(counts), loading: false }));
+      const sales = await fetchSalesForReports();
+      setReportsState((s) => ({
+        ...s,
+        metrics: buildMetrics(counts),
+        sales: sales,
+        loading: false
+      }));
     } catch {
       onNotification(false, "No se pudieron cargar las métricas. Se muestran en 0.");
-      setReportsState((s) => ({ ...s, metrics: buildMetrics({}), loading: false }));
+      setReportsState((s) => ({ ...s, metrics: buildMetrics({}), sales: [], loading: false }));
     }
   };
 

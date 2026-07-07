@@ -22,6 +22,12 @@ export type ReportMetricType = {
 // Datos que se persistirían (aunque el módulo es de lectura, replica la forma Input de la plantilla).
 export type ReportMetricInputType = Omit<ReportMetricType, "key">;
 
+// ── Facturación por mes ──
+// Venta mínima que necesita el reporte (fecha + total).
+export type SaleForReportType = { date: string; total: number };
+// Bucket mensual de facturación (para el gráfico de barras).
+export type MonthlyRevenueType = { key: string; label: string; total: number };
+
 // ── Formulario (todos los campos como string para los inputs) ──
 // El dashboard no crea datos; el "form" acota el rango de lectura del reporte.
 export type ReportsFormType = {
@@ -38,6 +44,7 @@ export type ReportsFormErrorsType = Partial<Record<keyof ReportsFormType, string
 export type ReportsDataType = {
   loading: boolean;
   metrics: ReportMetricType[];
+  sales: SaleForReportType[];
   query: string;
   toneFilter: MetricToneType | "all";
   mode: ReportsModeType;

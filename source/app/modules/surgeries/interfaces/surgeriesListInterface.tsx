@@ -1,10 +1,10 @@
 import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
-import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EmptyStateInterface from "@app/modules/main/interfaces/emptyStateInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import { Pencil, Scissors } from "@app/modules/main/interfaces/icons";
 import { InputInterface, SelectInterface } from "@app/modules/main/interfaces/inputInterface";
+import StatusSelectInterface from "@app/modules/main/interfaces/statusSelectInterface";
 import { SURGERY_STATUS_LABELS } from "@app/modules/surgeries/constants/constants";
 import type {
   SurgeryStatusFilterType,
@@ -21,16 +21,14 @@ type Props = {
   onOpenCreate: () => void;
   onOpenDetail: (surgery: SurgeryType) => void;
   onOpenEdit: (surgery: SurgeryType) => void;
+  onQuickStatus: (surgery: SurgeryType, status: SurgeryStatusType) => void;
 };
 
 const STATUS_OPTIONS = Object.keys(SURGERY_STATUS_LABELS) as SurgeryStatusType[];
-
-// Tono de la pastilla según el estado de la cirugía.
-const STATUS_TONE: Record<SurgeryStatusType, "info" | "success" | "error"> = {
-  scheduled: "info",
-  done: "success",
-  cancelled: "error"
-};
+const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((status) => ({
+  value: status,
+  label: SURGERY_STATUS_LABELS[status]
+}));
 
 export default function SurgeriesListInterface({
   items,
@@ -40,7 +38,8 @@ export default function SurgeriesListInterface({
   onFilterStatus,
   onOpenCreate,
   onOpenDetail,
-  onOpenEdit
+  onOpenEdit,
+  onQuickStatus
 }: Props) {
   const { getLabel: getPatientLabel } = useEntityLookup("patients");
 
@@ -107,9 +106,12 @@ export default function SurgeriesListInterface({
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <BadgeInterface tone={STATUS_TONE[surgery.status]}>
-                      {SURGERY_STATUS_LABELS[surgery.status]}
-                    </BadgeInterface>
+                    <StatusSelectInterface
+                      value={surgery.status}
+                      options={STATUS_SELECT_OPTIONS}
+                      onChange={(value) => onQuickStatus(surgery, value as SurgeryStatusType)}
+                      ariaLabel={`Cambiar estado de la cirugía ${surgery.type}`}
+                    />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

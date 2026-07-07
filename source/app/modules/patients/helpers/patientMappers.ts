@@ -14,8 +14,8 @@ export function parseWeight(value: string): number | null {
   return Number.isNaN(weight) || weight <= 0 ? null : weight;
 }
 
-// Formulario → datos persistibles. `base` aporta los campos que no están en el form
-// (photoUrl, isActive), tomados del paciente existente en edición.
+// Formulario → datos persistibles. La foto (photoUrl) ahora vive en el form; `base` sólo
+// aporta los campos que no están en el form (isActive), tomado del paciente existente en edición.
 export function toPatientInput(
   form: PatientFormType,
   base: { photoUrl?: string | null; isActive?: boolean } = {}
@@ -36,7 +36,7 @@ export function toPatientInput(
     preexistingConditions: form.preexistingConditions.trim(),
     habitualMedication: form.habitualMedication.trim(),
     notes: form.notes.trim(),
-    photoUrl: base.photoUrl ?? null,
+    photoUrl: form.photoUrl.trim().length > 0 ? form.photoUrl.trim() : null,
     isActive: base.isActive ?? true
   };
 }
@@ -58,6 +58,7 @@ export function formFromPatient(patient: PatientType): PatientFormType {
     allergies: patient.allergies,
     preexistingConditions: patient.preexistingConditions,
     habitualMedication: patient.habitualMedication,
-    notes: patient.notes
+    notes: patient.notes,
+    photoUrl: patient.photoUrl ?? ""
   };
 }

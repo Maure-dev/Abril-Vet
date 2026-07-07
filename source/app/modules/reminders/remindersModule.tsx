@@ -21,7 +21,8 @@ export default function RemindersModule() {
     handleCancel,
     handleChangeField,
     handleSubmit,
-    handleDelete
+    handleDelete,
+    handleQuickStatus
   } = useRemindersActions();
   const state = getRemindersState;
   const visible = filterReminders(state.items, state.query, state.typeFilter, state.statusFilter);
@@ -75,6 +76,7 @@ export default function RemindersModule() {
           onOpenCreate={handleOpenCreate}
           onOpenDetail={handleOpenDetail}
           onOpenEdit={handleOpenEdit}
+          onQuickStatus={handleQuickStatus}
         />
       ) : null}
     </section>

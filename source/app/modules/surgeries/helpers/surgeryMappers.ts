@@ -16,7 +16,8 @@ export function toSurgeryInput(form: SurgeryFormType): SurgeryInputType {
     medication: form.medication.trim(),
     evolution: form.evolution.trim(),
     status: form.status,
-    notes: form.notes.trim()
+    notes: form.notes.trim(),
+    attachments: form.attachments
   };
 }
 
@@ -32,6 +33,8 @@ export function formFromSurgery(surgery: SurgeryType): SurgeryFormType {
     medication: surgery.medication,
     evolution: surgery.evolution,
     status: surgery.status,
-    notes: surgery.notes
+    notes: surgery.notes,
+    // Cirugías antiguas pueden no tener el campo: normalizamos a lista vacía.
+    attachments: surgery.attachments ?? []
   };
 }

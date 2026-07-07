@@ -7,6 +7,7 @@ import { formatMoney } from "@app/modules/cashRegister/helpers/computeCash";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 
 type Props = {
@@ -49,9 +50,10 @@ export default function CashRegisterDetailInterface({ session, onEdit, onDelete,
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(session)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(session)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(session)}
+            message="¿Seguro que querés eliminar esta sesión de caja? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

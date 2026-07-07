@@ -1,8 +1,8 @@
 import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import { useEntityOptions } from "@app/modules/main/hooks/useEntityOptions";
-import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import EntitySelectInterface from "@app/modules/main/interfaces/entitySelectInterface";
 import FieldInterface from "@app/modules/main/interfaces/fieldInterface";
+import FormActionsInterface from "@app/modules/main/interfaces/formActionsInterface";
 import {
   InputInterface,
   SelectInterface,
@@ -53,13 +53,7 @@ export default function RemindersFormInterface({
   };
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      className="flex flex-col gap-5"
-    >
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <EntitySelectInterface
           label="Paciente"
@@ -118,14 +112,12 @@ export default function RemindersFormInterface({
         />
       </FieldInterface>
 
-      <div className="flex items-center gap-3">
-        <ButtonInterface type="submit" variant="success" loading={saving}>
-          {isEdit ? "Guardar cambios" : "Crear recordatorio"}
-        </ButtonInterface>
-        <ButtonInterface type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </ButtonInterface>
-      </div>
+      <FormActionsInterface
+        submitLabel={isEdit ? "Guardar cambios" : "Crear recordatorio"}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        saving={saving}
+      />
     </form>
   );
 }

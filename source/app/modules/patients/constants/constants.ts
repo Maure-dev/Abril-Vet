@@ -46,7 +46,8 @@ export const EMPTY_FORM: PatientFormType = {
   allergies: "",
   preexistingConditions: "",
   habitualMedication: "",
-  notes: ""
+  notes: "",
+  photoUrl: ""
 };
 
 export const INITIAL_STATE = {

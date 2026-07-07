@@ -22,7 +22,8 @@ export const EMPTY_FORM: SurgeryFormType = {
   medication: "",
   evolution: "",
   status: "scheduled",
-  notes: ""
+  notes: "",
+  attachments: []
 };
 
 export const INITIAL_STATE = {

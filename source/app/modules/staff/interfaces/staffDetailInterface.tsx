@@ -2,6 +2,7 @@ import { ROLE_LABELS } from "@app/modules/main/constants/constants";
 import BadgeInterface from "@app/modules/main/interfaces/badgeInterface";
 import ButtonInterface from "@app/modules/main/interfaces/buttonInterface";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
+import DeleteButtonInterface from "@app/modules/main/interfaces/deleteButtonInterface";
 import FieldInterface from "@app/modules/main/interfaces/fieldInterface";
 import { ArrowLeft } from "@app/modules/main/interfaces/icons";
 import { InputInterface } from "@app/modules/main/interfaces/inputInterface";
@@ -70,9 +71,10 @@ export default function StaffDetailInterface({
           <ButtonInterface variant="secondary" size="sm" onClick={() => onEdit(staff)}>
             Editar
           </ButtonInterface>
-          <ButtonInterface variant="danger" size="sm" onClick={() => onDelete(staff)}>
-            Eliminar
-          </ButtonInterface>
+          <DeleteButtonInterface
+            onConfirm={() => onDelete(staff)}
+            message="¿Seguro que querés eliminar a esta persona del personal? Esta acción no se puede deshacer."
+          />
         </div>
       </div>
 

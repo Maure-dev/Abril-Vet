@@ -1,20 +1,18 @@
 import type {
   DashAppointmentType,
-  DashHospitalizationType,
-  DashVaccinationType
+  DashHospitalizationType
 } from "@app/modules/dashboard/entities/entities";
 import { useEntityLookup } from "@app/modules/main/hooks/useEntityLookup";
 import CardInterface from "@app/modules/main/interfaces/cardInterface";
 import EntityLinkInterface from "@app/modules/main/interfaces/entityLinkInterface";
 import type { LucideIcon } from "@app/modules/main/interfaces/icons";
-import { Bed, Calendar, Clock, Syringe } from "@app/modules/main/interfaces/icons";
+import { Bed, Calendar, Clock } from "@app/modules/main/interfaces/icons";
 import type { ReactNode } from "react";
 
 type Props = {
   loading: boolean;
   todayAppointments: DashAppointmentType[];
   upcomingAppointments: DashAppointmentType[];
-  pendingVaccinations: DashVaccinationType[];
   hospitalized: DashHospitalizationType[];
 };
 
@@ -67,7 +65,6 @@ export default function DashboardPanelsInterface({
   loading,
   todayAppointments,
   upcomingAppointments,
-  pendingVaccinations,
   hospitalized
 }: Props) {
   const { getLabel } = useEntityLookup("patients");
@@ -106,31 +103,6 @@ export default function DashboardPanelsInterface({
               <EntityLinkInterface kind="patients" id={a.patientId} label={getLabel(a.patientId)} />
             }
             right={`${day(a.date)} ${time(a.date)}`}
-          />
-        ))}
-      </PanelCard>
-
-      <PanelCard
-        title="Próximas vacunas"
-        icon={Syringe}
-        loading={loading}
-        isEmpty={pendingVaccinations.length === 0}
-        emptyText="No hay vacunas próximas."
-      >
-        {pendingVaccinations.map((v) => (
-          <Row
-            key={v.id}
-            left={
-              <span className="flex items-center gap-2">
-                <EntityLinkInterface
-                  kind="patients"
-                  id={v.patientId}
-                  label={getLabel(v.patientId)}
-                />
-                <span className="text-ink-soft">· {v.vaccineName}</span>
-              </span>
-            }
-            right={v.nextDoseDate}
           />
         ))}
       </PanelCard>

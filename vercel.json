@@ -3,6 +3,7 @@
   "buildCommand": "cd source && npm run build",
   "installCommand": "cd source && npm install && cd ../api && npm install",
   "outputDirectory": "source/dist",
+  "crons": [{ "path": "/api/reminders/dispatch", "schedule": "0 12 * * *" }],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
     {

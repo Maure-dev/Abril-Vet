@@ -133,8 +133,14 @@ export const useSalesActions = () => {
         await createSale(toSaleInput(form));
         onNotification(true, "Venta registrada.");
       }
-      setSalesState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setSalesState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar la venta. Probá de nuevo.");
       setSalesState((s) => ({ ...s, saving: false }));

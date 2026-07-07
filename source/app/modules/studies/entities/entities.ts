@@ -39,9 +39,17 @@ export type StudyFormType = {
   requestedBy: string;
   result: string;
   status: StudyStatusType;
+  attachments: AttachmentType[];
 };
 
 export type StudyFormErrorsType = Partial<Record<keyof StudyFormType, string>>;
+
+// Precarga del alta vía deep-link (p. ej. "Registrar atención" desde un turno).
+export type StudyPrefillType = {
+  patientId?: string;
+  vetId?: string;
+  date?: string;
+};
 
 // ── Estado y contexto del módulo ──
 export type StudiesDataType = {

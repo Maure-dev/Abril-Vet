@@ -63,7 +63,7 @@ export type UploadedFileType = {
 // ── Lookups (selectores de entidades relacionadas) ──
 
 // Qué colección se puede buscar/seleccionar desde un formulario.
-export type LookupKindType = "clients" | "patients" | "vets" | "products";
+export type LookupKindType = "clients" | "patients" | "vets" | "products" | "suppliers";
 
 // Opción de un selector: id + etiqueta (y una línea secundaria opcional).
 // `clientId` sólo lo llevan los pacientes (dueño), para derivar/vincular el cliente.
@@ -72,6 +72,14 @@ export type OptionType = {
   label: string;
   sublabel?: string;
   clientId?: string;
+};
+
+// Resultado de la búsqueda global del topbar (cliente o paciente).
+export type GlobalResultType = {
+  kind: "client" | "patient";
+  id: string;
+  label: string;
+  sublabel?: string;
 };
 
 // ── Notificación global (toast) ──

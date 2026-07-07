@@ -102,8 +102,14 @@ export const usePatientsActions = () => {
         await createPatient(toPatientInput(form));
         onNotification(true, "Paciente creado.");
       }
-      setPatientsState((s) => ({ ...s, saving: false, mode: "list", selected: null }));
       await handleLoad();
+      setPatientsState((s) => {
+        if (mode === "edit" && selected) {
+          const updated = s.items.find((item) => item.id === selected.id) ?? null;
+          return { ...s, saving: false, mode: updated ? "detail" : "list", selected: updated };
+        }
+        return { ...s, saving: false, mode: "list", selected: null };
+      });
     } catch {
       onNotification(false, "No se pudo guardar el paciente. Probá de nuevo.");
       setPatientsState((s) => ({ ...s, saving: false }));

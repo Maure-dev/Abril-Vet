@@ -17,6 +17,8 @@ export function validateAppointmentForm(form: AppointmentFormType): AppointmentF
     const date = new Date(form.date);
     if (Number.isNaN(date.getTime())) {
       errors.date = "Fecha y hora inválidas";
+    } else if (!form.date.includes("T")) {
+      errors.date = "Elegí el horario del turno";
     }
   }
 
